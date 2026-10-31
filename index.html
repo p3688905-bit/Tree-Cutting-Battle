@@ -1,0 +1,1414 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>砍樹大作戰 ★ 台北公園解謎RPG</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/dotgothic16@latest/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/noto-sans-tc@latest/400.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/noto-sans-tc@latest/700.css">
+<style>
+:root{
+  --ink:#221a33; --ink2:#2f2547; --line:#15101f;
+  --paper:#fff6e2; --paper2:#ffe9c4;
+  --green:#5cb84a; --green2:#3f8f38; --blue:#63c8ff; --blue2:#2f86c9;
+  --gold:#ffcf4d; --pink:#ff9ec4; --purple:#a06bff; --red:#ff5d6c;
+  --shadow:0 6px 0 rgba(0,0,0,.45);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;height:100%}
+body{
+  background:
+    radial-gradient(circle at 20% 10%, #3a2b63 0%, transparent 55%),
+    radial-gradient(circle at 85% 85%, #1d4a44 0%, transparent 55%),
+    repeating-linear-gradient(45deg,#1b1530 0 8px,#191329 8px 16px);
+  color:var(--paper);
+  font-family:'DotGothic16','Noto Sans TC',monospace;
+  display:flex;align-items:flex-start;justify-content:center;
+  padding:10px;min-height:100%;
+}
+#app{width:100%;max-width:1120px;display:flex;gap:12px;flex-wrap:wrap;justify-content:center;align-items:flex-start}
+.panel{
+  background:linear-gradient(180deg,#3b2f63,#2a2145);
+  border:4px solid var(--line);
+  box-shadow:inset 0 0 0 3px #6d5bc0, var(--shadow);
+  padding:10px;
+}
+#stageWrap{flex:1 1 520px;max-width:760px;min-width:300px}
+#topbar{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+#topbar h1{
+  font-size:clamp(15px,3.4vw,24px);margin:0;letter-spacing:2px;color:var(--gold);
+  text-shadow:2px 2px 0 #7a3b12,4px 4px 0 rgba(0,0,0,.4);
+}
+#chapterTag{font-size:clamp(10px,2vw,13px);color:#bfe9ff;background:#1d2a4a;border:2px solid #4a6fb5;padding:2px 8px}
+.spacer{flex:1}
+.miniBtn{
+  font-family:inherit;font-size:12px;color:var(--paper);background:#4b3a86;border:3px solid var(--line);
+  box-shadow:inset 0 0 0 2px #8a72e0, 0 3px 0 rgba(0,0,0,.4);padding:4px 8px;cursor:pointer;letter-spacing:1px;
+}
+.miniBtn:hover{background:#5d48a8}
+.miniBtn:active{transform:translateY(3px);box-shadow:inset 0 0 0 2px #8a72e0}
+.miniBtn.off{background:#3a3350;box-shadow:inset 0 0 0 2px #5b5478,0 3px 0 rgba(0,0,0,.4);color:#8d86a8}
+
+#stage{position:relative;width:100%;aspect-ratio:4/3;background:#0b0a14;border:4px solid var(--line);
+  box-shadow:inset 0 0 0 3px #6d5bc0, 0 0 24px rgba(120,90,255,.25), var(--shadow);overflow:hidden}
+#game{width:100%;height:100%;display:block;image-rendering:pixelated;image-rendering:crisp-edges}
+.ov{position:absolute;inset:0;display:none;flex-direction:column}
+.ov.show{display:flex}
+
+/* ---- 標題畫面 ---- */
+#ovTitle{justify-content:center;align-items:center;text-align:center;
+  background:linear-gradient(180deg,rgba(20,12,40,.35) 0%,rgba(20,12,40,.72) 60%,rgba(10,6,22,.9) 100%)}
+.bigTitle{font-size:clamp(28px,7.4vw,58px);color:var(--gold);letter-spacing:6px;margin:0;
+  text-shadow:3px 3px 0 #b3441c,6px 6px 0 #4a1c0c,0 0 22px rgba(255,190,80,.45);animation:bobT 2.4s ease-in-out infinite}
+@keyframes bobT{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.subTitle{font-size:clamp(10px,2.5vw,15px);color:#cfe9ff;letter-spacing:3px;margin:6px 0 14px;text-shadow:2px 2px 0 #1b2a4a}
+.menuBtn{
+  font-family:inherit;font-size:clamp(13px,3vw,18px);letter-spacing:3px;color:#3a2a10;
+  background:linear-gradient(180deg,#ffe08a,#f0b73f);border:4px solid #4a2f0c;
+  box-shadow:inset 0 0 0 2px #fff3c4,0 5px 0 #7a4c12;margin:5px auto;padding:8px 26px;cursor:pointer;display:block;min-width:210px;
+}
+.menuBtn:hover{background:linear-gradient(180deg,#fff0b0,#ffc954)}
+.menuBtn:active{transform:translateY(5px);box-shadow:inset 0 0 0 2px #fff3c4}
+.menuBtn.blue{background:linear-gradient(180deg,#a8e6ff,#5ab6ee);color:#0e2a3d;border-color:#123a55;box-shadow:inset 0 0 0 2px #dcf4ff,0 5px 0 #1b5578}
+.menuBtn.pink{background:linear-gradient(180deg,#ffc2dc,#ff85b6);color:#4a0f28;border-color:#6b1c3c;box-shadow:inset 0 0 0 2px #ffe6f1,0 5px 0 #8f2a52}
+.hintLine{font-size:11px;color:#9d8fd0;margin-top:10px;letter-spacing:1px}
+
+/* ---- 對話框 ---- */
+#ovStory{justify-content:flex-end;background:rgba(6,4,14,0)}
+#storyBox{margin:0;padding:10px 12px;background:linear-gradient(180deg,#22193d,#150f28);
+  border-top:4px solid #7d68d8;box-shadow:inset 0 3px 0 #a795ff;min-height:36%}
+#storyTop{display:flex;gap:10px;align-items:flex-start}
+#portrait{width:64px;height:64px;flex:0 0 64px;image-rendering:pixelated;border:3px solid #6d5bc0;background:#120d22}
+#spName{font-size:clamp(12px,2.6vw,16px);color:var(--gold);letter-spacing:2px;margin-bottom:3px;text-shadow:1px 1px 0 #000}
+#spText{font-size:clamp(12px,2.7vw,16px);line-height:1.75;color:#f3ecff;letter-spacing:.5px;min-height:3.4em;text-shadow:1px 1px 0 #000}
+#storyFoot{display:flex;justify-content:space-between;align-items:center;margin-top:6px;font-size:11px;color:#8b7fc4}
+.blink{animation:bl .9s steps(2) infinite}
+@keyframes bl{50%{opacity:.15}}
+
+/* ---- 通用卡片覆蓋層 ---- */
+.card{margin:auto;width:min(94%,460px);max-height:94%;overflow:auto;background:linear-gradient(180deg,#332859,#221a3d);
+  border:4px solid var(--line);box-shadow:inset 0 0 0 3px #7d68d8,0 8px 0 rgba(0,0,0,.5);padding:14px;text-align:center}
+.card h2{margin:0 0 8px;font-size:clamp(16px,4vw,24px);color:var(--gold);letter-spacing:3px;text-shadow:2px 2px 0 #6b2f0c}
+.card p{font-size:clamp(11px,2.6vw,14px);line-height:1.8;color:#e6ddff;margin:6px 0;text-align:left}
+.card .row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:10px}
+.tag{display:inline-block;background:#1b2a4a;border:2px solid #4a6fb5;color:#bfe9ff;padding:2px 8px;font-size:11px;margin:2px}
+.tag.g{background:#173a24;border-color:#3f9e5f;color:#b6f0c4}
+.tag.y{background:#4a3a12;border-color:#c9a03b;color:#ffe6a3}
+.tag.r{background:#4a1620;border-color:#c94a5f;color:#ffc4cd}
+.stars{font-size:clamp(24px,7vw,40px);letter-spacing:6px;color:#5a4a80;text-shadow:2px 2px 0 rgba(0,0,0,.5);margin:6px 0}
+.stars b{color:var(--gold);text-shadow:0 0 12px rgba(255,207,77,.8),2px 2px 0 #7a4c12;display:inline-block;animation:pop .5s backwards}
+.stars b:nth-child(2){animation-delay:.25s}.stars b:nth-child(3){animation-delay:.5s}
+@keyframes pop{0%{transform:scale(0) rotate(-40deg);opacity:0}70%{transform:scale(1.35)}100%{transform:scale(1)}}
+#lvGrid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:8px}
+.lvBtn{font-family:inherit;cursor:pointer;background:#2b3f6b;border:3px solid #101828;color:#dff0ff;padding:6px 2px;
+  box-shadow:inset 0 0 0 2px #5b83c9;font-size:12px;line-height:1.3}
+.lvBtn:hover:not(.lock){background:#3d5a96}
+.lvBtn.lock{background:#241f36;color:#5d5478;box-shadow:inset 0 0 0 2px #3d3560;cursor:not-allowed}
+.lvBtn .st{color:var(--gold);font-size:10px;letter-spacing:1px}
+.lvBtn.done{background:#25503a;box-shadow:inset 0 0 0 2px #4fae74}
+.trackList{text-align:left}
+.track{display:flex;align-items:center;gap:8px;background:#1d1836;border:2px solid #463a7a;padding:5px 8px;margin:4px 0;cursor:pointer;font-size:12px}
+.track:hover{background:#2a2350}
+.track.playing{border-color:var(--gold);background:#3a2f14}
+.credits{font-size:12px;line-height:2;color:#e2d8ff;text-align:center;animation:roll 26s linear infinite}
+@keyframes roll{0%{transform:translateY(100%)}100%{transform:translateY(-100%)}}
+#endBox{overflow:hidden;height:70%}
+.kv{display:flex;justify-content:space-between;border-bottom:2px dotted #56498c;padding:3px 6px;font-size:12px;color:#ded4ff}
+
+/* ---- HUD ---- */
+#hud{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.hudBox{flex:1 1 150px;background:linear-gradient(180deg,#2c2350,#1e1838);border:3px solid var(--line);
+  box-shadow:inset 0 0 0 2px #5e4fa8;padding:7px 9px;min-width:130px}
+.hudBox h3{margin:0 0 5px;font-size:11px;color:#a99ce0;letter-spacing:2px}
+.big{font-size:clamp(15px,3.6vw,22px);color:var(--paper);letter-spacing:1px}
+.big small{font-size:11px;color:#9d91cc}
+.hearts{font-size:clamp(14px,3.4vw,20px);letter-spacing:2px;color:var(--red);text-shadow:1px 1px 0 #000}
+.bar{height:10px;background:#150f28;border:2px solid #463a7a;margin-top:5px;position:relative;overflow:hidden}
+.bar>i{display:block;height:100%;background:linear-gradient(90deg,#7ef29a,#37b25c);transition:width .3s}
+.bar.m>i{background:linear-gradient(90deg,#ffe08a,#f0a92f)}
+#skills{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.skill{flex:1 1 100px;font-family:inherit;cursor:pointer;background:linear-gradient(180deg,#3d5a96,#22355e);
+  border:3px solid #0e1730;box-shadow:inset 0 0 0 2px #7aa8ee,0 4px 0 rgba(0,0,0,.45);color:#eaf4ff;padding:6px;
+  font-size:12px;letter-spacing:1px;text-align:center;position:relative}
+.skill:hover:not(:disabled){background:linear-gradient(180deg,#4e70b8,#2b4376)}
+.skill:active:not(:disabled){transform:translateY(4px);box-shadow:inset 0 0 0 2px #7aa8ee}
+.skill:disabled{opacity:.42;cursor:not-allowed}
+.skill b{display:block;font-size:15px;color:var(--gold)}
+.skill .chg{position:absolute;top:-8px;right:-6px;background:var(--red);border:2px solid #4a0d16;color:#fff;
+  font-size:11px;padding:0 4px;line-height:16px}
+.skill.lock{background:#2a2540;box-shadow:inset 0 0 0 2px #4a4270,0 4px 0 rgba(0,0,0,.45);color:#7c739c}
+
+/* ---- 觸控 ---- */
+#pad{display:flex;gap:10px;margin-top:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+#dpad{display:grid;grid-template-columns:repeat(3,46px);grid-template-rows:repeat(3,46px);gap:4px}
+.pk{font-family:inherit;background:linear-gradient(180deg,#4b3a86,#332660);border:3px solid #170f2c;
+  box-shadow:inset 0 0 0 2px #8a72e0,0 4px 0 rgba(0,0,0,.45);color:#fff;font-size:18px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;user-select:none}
+.pk:active{transform:translateY(4px);box-shadow:inset 0 0 0 2px #8a72e0}
+.pk.act{background:linear-gradient(180deg,#e0654f,#a83a2a);box-shadow:inset 0 0 0 2px #ffa08c,0 4px 0 rgba(0,0,0,.45);font-size:14px}
+#padRight{display:flex;flex-direction:column;gap:6px;align-items:stretch}
+#log{flex:1 1 220px;background:#160f2a;border:3px solid var(--line);box-shadow:inset 0 0 0 2px #463a7a;
+  padding:6px 8px;font-size:11px;line-height:1.7;color:#b9abe6;height:110px;overflow:hidden}
+#log div{opacity:.55}#log div:first-child{opacity:1;color:#ffe9b0}
+#side{flex:1 1 260px;max-width:330px;min-width:250px}
+#side h2{font-size:14px;color:var(--gold);letter-spacing:2px;margin:0 0 8px;border-bottom:3px dotted #5e4fa8;padding-bottom:5px}
+#side .info{font-size:12px;line-height:1.95;color:#ded4ff}
+#side .info b{color:var(--gold)}
+.disease{display:flex;gap:6px;align-items:center;background:#1d1836;border:2px solid #463a7a;padding:4px 6px;margin:4px 0;font-size:11px}
+.dot{width:14px;height:14px;border:2px solid #0d0a18;flex:0 0 14px}
+footer{width:100%;text-align:center;font-size:11px;color:#7c6fb0;margin:12px 0 4px;letter-spacing:1px}
+@media (max-width:760px){ #side{max-width:none;flex:1 1 100%} #dpad{grid-template-columns:repeat(3,42px);grid-template-rows:repeat(3,42px)} }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="stageWrap">
+    <div id="topbar">
+      <h1>🪓 砍樹大作戰</h1>
+      <span id="chapterTag">序章</span>
+      <span class="spacer"></span>
+      <button class="miniBtn" id="btnHelp">玩法說明</button>
+      <button class="miniBtn" id="btnMusic">♪ 音樂 ON</button>
+    </div>
+
+    <div id="stage">
+      <canvas id="game" width="320" height="240"></canvas>
+
+      <!-- 標題 -->
+      <div class="ov show" id="ovTitle">
+        <h1 class="bigTitle">砍樹大作戰</h1>
+        <div class="subTitle">～ 台北公園・藍霧編 ～</div>
+        <button class="menuBtn" id="btnStart">開 始 遊 戲</button>
+        <button class="menuBtn blue" id="btnSelect">關 卡 選 擇</button>
+        <button class="menuBtn blue" id="btnJuke">配 樂 鑑 賞</button>
+        <button class="menuBtn pink" id="btnHelp2">玩 法 說 明</button>
+        <div class="hintLine">方向鍵/WASD 移動 ・ 空白鍵 砍樹 ・ 1 2 3 技能</div>
+      </div>
+
+      <!-- 劇情對話 -->
+      <div class="ov" id="ovStory">
+        <div id="storyBox">
+          <div id="storyTop">
+            <canvas id="portrait" width="32" height="32"></canvas>
+            <div style="flex:1">
+              <div id="spName">旁白</div>
+              <div id="spText"></div>
+            </div>
+          </div>
+          <div id="storyFoot">
+            <span id="storyPage">1 / 1</span>
+            <span class="blink">▼ 點擊或按空白鍵繼續</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 關卡 intro -->
+      <div class="ov" id="ovIntro"><div class="card" id="introCard"></div></div>
+      <!-- 過關 -->
+      <div class="ov" id="ovClear"><div class="card" id="clearCard"></div></div>
+      <!-- 失敗 -->
+      <div class="ov" id="ovFail"><div class="card" id="failCard"></div></div>
+      <!-- 選關 -->
+      <div class="ov" id="ovSelect"><div class="card">
+        <h2>關 卡 選 擇</h2>
+        <div id="lvGrid"></div>
+        <div class="row"><button class="miniBtn" data-close="ovSelect">返 回</button></div>
+      </div></div>
+      <!-- 說明 -->
+      <div class="ov" id="ovHelp"><div class="card" id="helpCard"></div></div>
+      <!-- 配樂 -->
+      <div class="ov" id="ovJuke"><div class="card">
+        <h2>配 樂 鑑 賞</h2>
+        <div class="trackList" id="trackList"></div>
+        <div class="row"><button class="miniBtn" id="btnJukeStop">■ 停止</button><button class="miniBtn" data-close="ovJuke">返 回</button></div>
+      </div></div>
+      <!-- 結局 -->
+      <div class="ov" id="ovEnd"><div class="card" style="width:min(96%,520px)">
+        <h2 id="endTitle">THE END</h2>
+        <div id="endBox"><div class="credits" id="endCredits"></div></div>
+        <div id="endStats" style="margin-top:8px"></div>
+        <div class="row"><button class="menuBtn" id="btnBackTitle" style="min-width:170px;margin:6px auto">回 到 標 題</button></div>
+      </div></div>
+    </div>
+
+    <!-- HUD -->
+    <div id="hud">
+      <div class="hudBox"><h3>体力 HEARTS</h3><div class="hearts" id="hHearts">♥♥♥</div></div>
+      <div class="hudBox"><h3>剩餘步數 MOVES</h3><div class="big" id="hMoves">-- <small>/ --</small></div>
+        <div class="bar m"><i id="hMovesBar" style="width:100%"></i></div></div>
+      <div class="hudBox"><h3>病樹 TREES</h3><div class="big" id="hTrees">-- <small>棵</small></div>
+        <div style="font-size:11px;color:#9d91cc;margin-top:4px" id="hPark">—</div></div>
+      <div class="hudBox"><h3>樹醫 LV.<span id="hLv">1</span></h3>
+        <div class="big" style="font-size:13px">EXP <span id="hXp">0</span>/<span id="hXpN">30</span></div>
+        <div class="bar"><i id="hXpBar" style="width:0%"></i></div></div>
+    </div>
+
+    <div id="skills">
+      <button class="skill lock" id="sk0" data-sk="0"><b>淨化鈴鐺</b>驅散全部精靈<span class="chg">0</span></button>
+      <button class="skill lock" id="sk1" data-sk="1"><b>星光果實</b>步數 +8<span class="chg">0</span></button>
+      <button class="skill lock" id="sk2" data-sk="2"><b>流星斬</b>全場樹木 -1 HP<span class="chg">0</span></button>
+    </div>
+
+    <div id="pad">
+      <div id="dpad">
+        <span></span><button class="pk" data-dir="up">▲</button><span></span>
+        <button class="pk" data-dir="left">◀</button><button class="pk act" id="btnChop">砍</button><button class="pk" data-dir="right">▶</button>
+        <span></span><button class="pk" data-dir="down">▼</button><span></span>
+      </div>
+      <div id="log"><div>◎ 歡迎來到砍樹大作戰！</div></div>
+      <div id="padRight">
+        <button class="miniBtn" id="btnRetry">↻ 重來本關 (R)</button>
+        <button class="miniBtn" id="btnQuit">⚑ 回標題</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="side" class="panel">
+    <h2>▍樹木醫生手冊</h2>
+    <div class="info" id="sideInfo"></div>
+    <h2 style="margin-top:12px">▍四種樹木疾病</h2>
+    <div class="disease"><span class="dot" style="background:#e8c33a"></span><div><b style="color:#ffe08a">葉枯病</b> HP1・倒下時衝撃波傷害周囲8格</div></div>
+    <div class="disease"><span class="dot" style="background:#a4632c"></span><div><b style="color:#e0a06a">褐根病</b> HP2・倒下時傳染相鄰同種樹</div></div>
+    <div class="disease"><span class="dot" style="background:#e8eef5"></span><div><b style="color:#eef4ff">白紋羽病</b> HP3・倒下時十字傳染同種樹</div></div>
+    <div class="disease"><span class="dot" style="background:#7a3b8f"></span><div><b style="color:#d6a8f0">炭疽病</b> HP4・倒下時十字衝撃所有樹</div></div>
+    <div class="disease"><span class="dot" style="background:#ff4d6d"></span><div><b style="color:#ff9aa8">BOSS 枯萎之心</b> 會不斷召喚藍色小精靈</div></div>
+    <h2 style="margin-top:12px">▍藍色小精靈</h2>
+    <div class="info">
+      精靈會<b>飛向病樹</b>並把它<b>治好（HP+1）</b>，讓瘟疫繼續蔓延。<br>
+      ・精靈貼到你身邊 → <b>損失1體力+1步數</b><br>
+      ・<b>砍倒精靈旁邊的樹</b> → 牠會被嚇跑（消失）<br>
+      ・<b>淨化鈴鐺</b> → 一次清空全場精靈
+    </div>
+    <h2 style="margin-top:12px">▍本作戰地圖（12行政區・20公園）</h2>
+    <div class="info" id="mapList" style="font-size:11px;line-height:1.9"></div>
+    <h2 style="margin-top:12px">▍記錄</h2>
+    <div class="info" id="saveInfo"></div>
+  </div>
+
+  <footer>© 台北市樹木醫生公會 ・ 像素解謎RPG 「砍樹大作戰」 ・ 全程 Web Audio 晶片音樂</footer>
+</div>
+
+<script>
+"use strict";
+/* =========================================================
+   砍樹大作戰 - Taipei Park Puzzle RPG
+   ========================================================= */
+const $=id=>document.getElementById(id);
+const clamp=(v,a,b)=>v<a?a:v>b?b:v;
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+
+/* ===================== 音效音樂引擎 ===================== */
+const NOTE={C:0,'C#':1,D:2,'D#':3,E:4,F:5,'F#':6,G:7,'G#':8,A:9,'A#':10,B:11};
+function nf(n){const m=/^([A-G]#?)(\d)$/.exec(n);if(!m)return 0;return 440*Math.pow(2,((NOTE[m[1]]+(+m[2]-4)*12)-9)/12);}
+const S=s=>s.trim().split(/\s+/);
+
+const TRACKS={
+ title:{name:'主題曲・綠色的心跳',bpm:136,vol:.9,
+  lead:{w:'square',v:.16,n:S("E5 - G5 - A5 - G5 - E5 - D5 - C5 - E5 - D5 - E5 - G5 - A5 - G5 - E5 - D5 - -")},
+  bass:{w:'triangle',v:.22,n:S("C3 - G3 - C3 - A2 - E3 - A2 - F2 - C3 - F2 - G2 - D3 - G2")},
+  arp:{w:'square',v:.06,n:S("C4 E4 G4 E4 F4 A4 C5 A4 G4 B4 D5 B4")},
+  drum:S("k - h - s - h - k - h - s - h h")},
+ field1:{name:'第一章・城中之綠',bpm:124,vol:.9,
+  lead:{w:'square',v:.15,n:S("F5 - A5 - C6 - A5 - G5 - E5 - G5 - B5 - D5 - F5 - A5 - G5 - F5 - E5 - D5 - C5")},
+  bass:{w:'triangle',v:.22,n:S("F2 - C3 - F2 - C3 - D3 - A2 - D3 - Bb2 - F3 - Bb2")},
+  arp:{w:'square',v:.055,n:S("F4 A4 C5 A4 D4 F4 A4 F4 Bb4 D5 F5 D5 C4 E4 G4 E4")},
+  drum:S("k - h h s - h - k k h - s - h h")},
+ field2:{name:'第二章・東區風暴',bpm:142,vol:.95,
+  lead:{w:'square',v:.15,n:S("A4 - C5 - E5 - A5 - G5 - E5 - C5 - E5 - F5 - A5 - C6 - A5 - G5 - F5 - E5 - D5")},
+  bass:{w:'triangle',v:.24,n:S("A2 A2 E3 E3 F2 F2 C3 C3 D2 D2 A2 A2 G2 G2 E3 E3")},
+  arp:{w:'square',v:.06,n:S("A4 C5 E5 C5 F4 A4 C5 A4 G4 B4 D5 B4 E4 G4 B4 G4")},
+  drum:S("k - h - s - h h k - h - s - h h")},
+ field3:{name:'第三章・山腳迷霧',bpm:112,vol:.95,
+  lead:{w:'triangle',v:.18,n:S("D5 - F5 - E5 - D5 - A4 - D5 - C5 - A4 - Bb4 - D5 - F5 - E5 - D5 - C5 - A4 - -")},
+  bass:{w:'triangle',v:.2,n:S("D2 - A2 - D2 - Bb2 - F2 - Bb2 - C3 - G2 - C3 - A2")},
+  arp:{w:'square',v:.045,n:S("D4 F4 A4 F4 Bb3 D4 F4 D4 C4 E4 G4 E4 A3 C4 E4 C4")},
+  drum:S("k - - h s - - h k - - h s - h -")},
+ boss:{name:'第四章・枯萎之心',bpm:158,vol:1,
+  lead:{w:'square',v:.16,n:S("E5 - E5 - F5 - E5 - D5 - B4 - C5 - D5 - E5 - G5 - F5 - E5 - D5 - C5 - B4 - -")},
+  bass:{w:'sawtooth',v:.16,n:S("E2 E2 E2 E2 F2 F2 F2 F2 G2 G2 G2 G2 E2 E2 E2 E2")},
+  arp:{w:'square',v:.06,n:S("E4 G4 B4 G4 F4 A4 C5 A4 G4 B4 D5 B4 E4 G4 B4 E5")},
+  drum:S("k - h - s - h h k k h - s - h h")},
+ sad:{name:'插曲・最後一片葉子',bpm:78,vol:.85,
+  lead:{w:'triangle',v:.2,n:S("A4 - - - C5 - - - B4 - - - A4 - - - F4 - - - A4 - - - G4 - - - E4 - - -")},
+  bass:{w:'triangle',v:.18,n:S("A2 - - - E3 - - - F2 - - - C3 - - - G2 - - - D3 - - -")},
+  drum:S("- - - - - - - -")},
+ end:{name:'結局・森林不會結束',bpm:96,vol:.95,
+  lead:{w:'square',v:.15,n:S("C5 - E5 - G5 - E5 - F5 - A5 - C6 - A5 - G5 - B5 - D6 - B5 - C6 - - - -")},
+  bass:{w:'triangle',v:.2,n:S("C3 - G3 - C3 - F2 - C3 - F2 - G2 - D3 - G2 - A2 - E3 - F2 - G2 - C3")},
+  arp:{w:'square',v:.05,n:S("C4 E4 G4 C5 F4 A4 C5 F4 G4 B4 D5 G4 E4 G4 C5 E4")},
+  drum:S("k - h - s - h - k - h - s - h h")}
+};
+
+const AU={ctx:null,mg:null,mus:null,sf:null,cur:null,step:0,next:0,tid:null,on:true,
+ init(){ if(this.ctx)return; const C=window.AudioContext||window.webkitAudioContext; if(!C)return;
+  this.ctx=new C(); this.mg=this.ctx.createGain(); this.mg.gain.value=.55; this.mg.connect(this.ctx.destination);
+  this.mus=this.ctx.createGain(); this.mus.gain.value=.5;
+  const dl=this.ctx.createDelay(); dl.delayTime.value=.19; const fb=this.ctx.createGain(); fb.gain.value=.24;
+  const wet=this.ctx.createGain(); wet.gain.value=.3;
+  this.mus.connect(dl); dl.connect(fb); fb.connect(dl); dl.connect(wet); wet.connect(this.mg);
+  this.mus.connect(this.mg);
+  this.sf=this.ctx.createGain(); this.sf.gain.value=.6; this.sf.connect(this.mg);
+ },
+ resume(){ this.init(); if(this.ctx&&this.ctx.state==='suspended')this.ctx.resume(); },
+ tone(f,t,dur,w,v,slide,dst){ if(!this.ctx)return; const o=this.ctx.createOscillator(),g=this.ctx.createGain();
+  o.type=w; o.frequency.setValueAtTime(f,t); if(slide)o.frequency.exponentialRampToValueAtTime(Math.max(20,slide),t+dur);
+  g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtValue?0:0; g.gain.linearRampToValueAtTime(v,t+.008);
+  g.gain.exponentialRampToValueAtTime(.0008,t+dur); o.connect(g); g.connect(dst||this.mus); o.start(t); o.stop(t+dur+.03); },
+ noise(t,dur,v,f0,dst){ if(!this.ctx)return; const len=Math.max(1,Math.floor(this.ctx.sampleRate*dur));
+  const b=this.ctx.createBuffer(1,len,this.ctx.sampleRate),d=b.getChannelData(0);
+  for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*(1-i/len);
+  const s=this.ctx.createBufferSource(); s.buffer=b; const g=this.ctx.createGain(); g.gain.value=v;
+  const bp=this.ctx.createBiquadFilter(); bp.type='bandpass'; bp.frequency.setValueAtTime(f0||1200,t);
+  bp.frequency.exponentialRampToValueAtTime(Math.max(80,(f0||1200)*.3),t+dur); bp.Q.value=1.1;
+  s.connect(bp); bp.connect(g); g.connect(dst||this.mus); s.start(t); },
+ play(key){ if(!this.on)return; this.init(); if(!this.ctx)return; if(this.cur===key)return; this.cur=key;
+  this.step=0; this.next=this.ctx.currentTime+.06; clearInterval(this.tid);
+  this.tid=setInterval(()=>this.tick(),25); this.tick(); },
+ stop(){ clearInterval(this.tid); this.tid=null; this.cur=null; },
+ tick(){ if(!this.ctx||!this.cur)return; const T=TRACKS[this.cur]; if(!T)return;
+  const spb=60/T.bpm/2; const len=(T.lead?T.lead.n.length:32);
+  while(this.next<this.ctx.currentTime+.18){ this.hit(this.step%len,this.next,T,spb); this.next+=spb; this.step++; } },
+ hit(i,t,T,spb){ const v=T.vol||1;
+  if(T.lead){const n=T.lead.n[i%T.lead.n.length]; if(n&&n!=='-'){const f=nf(n); if(f)this.tone(f,t,spb*1.5,T.lead.w,T.lead.v*v);}}
+  if(T.arp){const n=T.arp.n[i%T.arp.n.length]; if(n&&n!=='-'){const f=nf(n); if(f)this.tone(f,t,spb*.7,T.arp.w,T.arp.v*v);}}
+  if(T.bass){const n=T.bass.n[i%T.bass.n.length]; if(n&&n!=='-'){const f=nf(n); if(f)this.tone(f,t,spb*1.9,T.bass.w,T.bass.v*v);}}
+  if(T.drum){const d=T.drum[i%T.drum.length];
+   if(d==='k')this.tone(120,t,.14,'sine',.34*v,44,this.mg);
+   else if(d==='s')this.noise(t,.13,.2*v,2000,this.mg);
+   else if(d==='h')this.noise(t,.045,.09*v,6500,this.mg);}
+ },
+ sfx(k){ if(!this.on)return; this.init(); if(!this.ctx)return; const t=this.ctx.currentTime, d=this.sf;
+  switch(k){
+   case 'chop': this.noise(t,.09,.3,900,d); this.tone(240,t,.1,'square',.2,90,d); break;
+   case 'hit': this.tone(620,t,.06,'square',.16,420,d); break;
+   case 'down': this.noise(t,.3,.3,600,d); this.tone(300,t,.3,'triangle',.24,55,d); this.noise(t+.1,.35,.16,1800,d); break;
+   case 'step': this.noise(t,.03,.07,700,d); break;
+   case 'poof': this.tone(500,t,.14,'sine',.18,1500,d); this.noise(t,.12,.1,3000,d); break;
+   case 'heal': this.tone(660,t,.1,'sine',.16,990,d); this.tone(990,t+.08,.12,'sine',.12,1320,d); break;
+   case 'hurt': this.tone(220,t,.28,'sawtooth',.24,70,d); this.noise(t,.2,.16,500,d); break;
+   case 'ui': this.tone(880,t,.05,'square',.13,1180,d); break;
+   case 'skill': [660,880,1180,1560].forEach((f,i)=>this.tone(f,t+i*.055,.14,'square',.14,f*1.2,d)); break;
+   case 'win': [523,659,784,1046,1318].forEach((f,i)=>this.tone(f,t+i*.1,.3,'square',.17,f,d)); break;
+   case 'fail': [440,370,294,220].forEach((f,i)=>this.tone(f,t+i*.14,.3,'sawtooth',.15,f*.7,d)); break;
+   case 'lv': [523,659,784,1046,784,1046,1318].forEach((f,i)=>this.tone(f,t+i*.08,.22,'triangle',.2,f,d)); break;
+   case 'txt': this.tone(1200,t,.02,'square',.05,1200,d); break;
+   case 'star': [1046,1318,1568].forEach((f,i)=>this.tone(f,t+i*.12,.4,'triangle',.16,f*1.5,d)); break;
+  }}
+};
+
+/* ===================== 像素繪圖工具 ===================== */
+const cv=$('game'), ctx=cv.getContext('2d'); ctx.imageSmoothingEnabled=false;
+const SC={};
+function spr(key,w,h,fn){ let c=SC[key]; if(!c){c=document.createElement('canvas');c.width=w;c.height=h;
+  const g=c.getContext('2d'); g.imageSmoothingEnabled=false; fn(g); SC[key]=c;} return c; }
+function blit(img,x,y,w,h,flip){ x=Math.round(x);y=Math.round(y); ctx.save();
+  if(flip){ctx.translate(x+w,y);ctx.scale(-1,1);ctx.drawImage(img,0,0,w,h);} else ctx.drawImage(img,x,y,w,h); ctx.restore(); }
+function R(g,x,y,w,h,c){g.fillStyle=c;g.fillRect(x,y,w,h);}
+
+/* --- 疾病設定 --- */
+const DIS={
+ ye:{name:'葉枯病',hp:1,col:'#e8c33a',col2:'#b8912a',chain:8,xp:6},
+ br:{name:'褐根病',hp:2,col:'#a4632c',col2:'#7a451c',chain:'same4',xp:10},
+ wh:{name:'白紋羽病',hp:3,col:'#e8eef5',col2:'#b9c6d6',chain:'same+',xp:16},
+ bk:{name:'炭疽病',hp:4,col:'#7a3b8f',col2:'#3a2247',chain:4,xp:24},
+ boss:{name:'枯萎之心',hp:1,col:'#ff4d6d',col2:'#6b1f3a',chain:4,xp:120}
+};
+
+/* --- 樹木 16x16 --- */
+function treeArt(type,stage,sway){
+ return spr('t'+type+stage+sway,16,16,g=>{
+  const D=DIS[type];
+  // 樹幹
+  R(g,7,10,2,6,'#7a4a24'); R(g,7,10,1,6,'#8f5a2e'); R(g,8,13,1,3,'#5f381a');
+  if(type==='boss'){R(g,6,11,4,5,'#5a3a2a');R(g,5,13,6,3,'#4a2c20');}
+  // 樹冠
+  const base= type==='boss'?'#4a3a5e' : ['#3f9e4f','#3f9e4f','#37914a','#2f7f42'][stage]||'#3f9e4f';
+  const hi  = type==='boss'?'#6a5480' : '#62c46a';
+  const lo  = type==='boss'?'#2c2140' : '#2c7a3d';
+  const rows=[[2,6,4],[3,4,8],[4,3,10],[5,2,12],[6,2,12],[7,2,12],[8,2,12],[9,3,10],[10,5,6]];
+  const off=sway?1:0;
+  rows.forEach(([y,x,w],i)=>{ let xx=x+(off&&i<4?1:0);
+    let ww=w; if(stage>=2&&i>4)ww=Math.max(2,w-3); if(stage>=3&&i>2)ww=Math.max(2,w-5);
+    R(g,xx,y,ww,1,i<2?hi:(i>6?lo:base)); });
+  // 病斑
+  const spots=[[4,4],[9,5],[6,7],[11,8],[3,7],[8,3],[5,9],[10,9]];
+  const n=[2,4,6,8][stage]||8;
+  for(let i=0;i<n;i++){const s=spots[i%spots.length]; R(g,s[0],s[1],1,1,D.col); R(g,s[0]+1,s[1],1,1,D.col2);}
+  if(type==='boss'){ R(g,7,7,2,3,'#ff4d6d'); R(g,6,8,4,1,'#ff8fa0'); R(g,5,5,2,2,'#2a1030'); R(g,9,5,2,2,'#2a1030');
+    R(g,5,6,1,1,'#ff3355'); R(g,10,6,1,1,'#ff3355'); }
+  if(type==='bk'){ R(g,6,6,1,1,'#c070ff'); R(g,9,9,1,1,'#c070ff'); }
+  // 高光
+  R(g,4,3,2,1,'rgba(255,255,255,.25)');
+ });
+}
+/* --- 主角 --- */
+function heroArt(frame,blink,act){
+ return spr('h'+frame+(blink?'b':'')+(act?'a':''),16,16,g=>{
+  const skin='#ffd9b3',skin2='#e8b98f',hair='#6b4423',hat='#f2c95c',hat2='#c98f2e',
+        ov='#4caf6d',ov2='#3a8b53',shirt='#fff3d6',boot='#5a3a1e',eye='#2b2b3a';
+  // 斧頭(背後/右側)
+  if(!act){ R(g,13,7,1,7,'#a9743f'); R(g,12,5,3,3,'#dfe7ef'); R(g,12,5,1,3,'#a8b8c8'); }
+  else { R(g,12,3,1,8,'#a9743f'); R(g,11,1,4,3,'#eef5ff'); R(g,11,1,1,3,'#a8b8c8'); R(g,13,4,2,1,'#cfd8e4'); }
+  // 帽
+  R(g,4,1,8,2,hat); R(g,3,1,1,1,hat2); R(g,12,1,1,1,hat2);
+  R(g,2,3,12,1,hat); R(g,4,3,8,1,hat2); R(g,2,3,1,1,hat2); R(g,13,3,1,1,hat2);
+  // 頭髮
+  R(g,3,4,10,1,hair); R(g,3,5,1,3,hair); R(g,12,5,1,3,hair);
+  // 臉
+  R(g,4,5,8,4,skin); R(g,4,8,8,1,skin2);
+  if(!blink){ R(g,6,6,1,2,eye); R(g,9,6,1,2,eye); R(g,6,6,1,1,'#ffffff'); }
+  else { R(g,6,7,1,1,eye); R(g,9,7,1,1,eye); }
+  R(g,5,7,1,1,'#ff9f9f'); R(g,10,7,1,1,'#ff9f9f'); R(g,7,8,2,1,'#d98b7a');
+  // 身體
+  R(g,4,9,8,4,ov); R(g,4,9,1,4,ov2); R(g,3,9,1,3,shirt); R(g,12,9,1,3,shirt);
+  R(g,3,11,1,1,skin); R(g,12,11,1,1,skin);
+  R(g,4,11,8,1,'#8b5a2b'); R(g,7,11,2,1,'#ffd166');
+  R(g,6,9,1,2,ov2); R(g,9,9,1,2,ov2);
+  // 腳
+  if(frame===0){ R(g,5,13,2,2,ov2); R(g,9,13,2,2,ov2); R(g,4,15,3,1,boot); R(g,9,15,3,1,boot); }
+  else { R(g,4,13,2,2,ov2); R(g,10,13,2,2,ov2); R(g,3,15,3,1,boot); R(g,10,15,3,1,boot); }
+ });
+}
+/* --- 藍色小精靈 --- */
+function spriteArt(frame,mad){
+ return spr('s'+frame+(mad?'m':''),16,16,g=>{
+  const body=mad?'#6fa8ff':'#8fdcff',out=mad?'#2b4fa8':'#2f86c9',hi='#dcf4ff';
+  // 翅膀
+  const wy=frame?5:6;
+  R(g,2,wy,2,3,'rgba(255,255,255,.85)'); R(g,1,wy+1,1,2,'rgba(255,255,255,.6)');
+  R(g,12,wy,2,3,'rgba(255,255,255,.85)'); R(g,14,wy+1,1,2,'rgba(255,255,255,.6)');
+  // 身體
+  R(g,5,5,6,7,body); R(g,4,6,8,5,body); R(g,6,4,4,1,body); R(g,6,12,4,1,body);
+  R(g,4,6,1,5,out); R(g,11,6,1,5,out); R(g,6,4,4,1,out); R(g,5,5,1,1,out); R(g,10,5,1,1,out);
+  R(g,6,12,4,1,out); R(g,5,11,1,1,out); R(g,10,11,1,1,out);
+  R(g,5,6,2,2,hi);
+  // 眼
+  R(g,6,8,2,2,'#fff'); R(g,9,8,2,2,'#fff');
+  R(g,7,8,1,2,'#1a2340'); R(g,10,8,1,2,'#1a2340');
+  if(mad){ R(g,6,7,2,1,'#1a2340'); R(g,9,7,2,1,'#1a2340'); R(g,7,11,3,1,'#1a2340'); }
+  else { R(g,7,11,3,1,'#ff9ec4'); }
+  // 天線
+  R(g,8,3,1,1,out); R(g,8,2,1,1,'#fff36b'); R(g,7,1,1,1,'#fff9c4'); R(g,9,1,1,1,'#fff9c4'); R(g,8,0,1,1,'#fff9c4');
+  // 尾巴光
+  R(g,7,13,2,1,'rgba(143,220,255,.5)');
+ });
+}
+/* --- 地磚 --- */
+const THEME=[
+ {g1:'#5cb84a',g2:'#4a9e3f',g3:'#7ed35f',p1:'#e0cfa0',p2:'#c9b183',w1:'#3f8fd6',w2:'#6fc0f0',sky:'#8fd8ff',fr:'#7a4a24'},
+ {g1:'#63c252',g2:'#4fa83f',g3:'#8adf68',p1:'#e8d7a8',p2:'#cbb487',w1:'#37a0d8',w2:'#7fd0f0',sky:'#a6e6ff',fr:'#8a5a2b'},
+ {g1:'#c08a3e',g2:'#9c6c2e',g3:'#e0aa5c',p1:'#c9b48b',p2:'#a8946c',w1:'#3d7fa8',w2:'#6fb0d0',sky:'#f0b27a',fr:'#6b4423'},
+ {g1:'#5a6b4a',g2:'#414f38',g3:'#7a8c62',p1:'#8a7f6a',p2:'#6a6152',w1:'#4a3f7a',w2:'#7a6bb0',sky:'#5a3f7a',fr:'#3f2b4a'}
+];
+function tileArt(type,variant,ch,frame){
+ return spr('T'+type+variant+ch+frame,16,16,g=>{
+  const T=THEME[ch]||THEME[0];
+  const v=(variant*7919)%100;
+  if(type===2){ // 水
+    R(g,0,0,16,16,T.w1);
+    for(let i=0;i<5;i++){const x=(v+i*5)%13,y=(i*3+frame)%14; R(g,x,y,3,1,T.w2);}
+    if(frame===1){R(g,(v+4)%12,4,4,1,'#cdeeff');R(g,(v+9)%12,10,3,1,'#cdeeff');}
+    return;
+  }
+  if(type===4){ // 灌木籬
+    R(g,0,0,16,16,T.g2); R(g,1,1,14,14,ch>=3?'#2f5a3a':'#2f7a3a');
+    R(g,2,2,12,3,ch>=3?'#3f7a4a':'#46a04f'); R(g,3,3,3,1,'#6fc46f'); R(g,9,4,3,1,'#6fc46f');
+    R(g,1,12,14,2,'#1f4a28'); return;
+  }
+  if(type===7){ // 岩石
+    R(g,0,0,16,16,T.g1); R(g,3,6,10,8,'#8a8a9a'); R(g,4,5,8,1,'#a5a5b5');
+    R(g,4,7,4,3,'#b9b9c9'); R(g,10,10,3,3,'#6a6a7a'); R(g,2,13,12,1,'#5a5a6a'); return;
+  }
+  if(type===5){ // 長椅
+    R(g,0,0,16,16,T.g1); R(g,2,6,12,2,'#a9743f'); R(g,2,9,12,2,'#a9743f');
+    R(g,3,8,10,1,'#7a4a24'); R(g,3,11,2,3,'#5f381a'); R(g,11,11,2,3,'#5f381a');
+    R(g,2,5,12,1,'#c98f5a'); return;
+  }
+  if(type===6){ // 樹樁
+    R(g,0,0,16,16,T.g1); R(g,5,9,6,5,'#7a4a24'); R(g,5,8,6,2,'#c9975a');
+    R(g,6,8,4,1,'#e0b57a'); R(g,7,8,1,1,'#a9743f'); R(g,4,13,8,1,'#5f381a'); return;
+  }
+  // 草地/路/花
+  const base=type===1?T.p1:T.g1;
+  R(g,0,0,16,16,base);
+  if(type===1){ for(let i=0;i<7;i++){const x=(v+i*5)%15,y=(v+i*7)%15;R(g,x,y,1,1,T.p2);} R(g,0,0,16,1,'rgba(255,255,255,.18)'); }
+  else{ for(let i=0;i<6;i++){const x=(v+i*6)%15,y=(v+i*4)%15;R(g,x,y,1,1,i%2?T.g3:T.g2);}
+       R(g,(v)%14,(v*3)%14,2,1,T.g3); }
+  if(type===3){ const cols=['#ff9ec4','#ffcf4d','#ff7a8a','#ffffff'];
+    for(let i=0;i<3;i++){const x=(v+i*5)%13+1,y=(v+i*6)%13+1,c=cols[(v+i)%4];
+      R(g,x,y,2,2,c);R(g,x,y,1,1,'#fff6');}}
+ });
+}
+
+/* --- 頭像 32x32 --- */
+function portraitArt(who){
+ return spr('p_'+who,32,32,g=>{
+  R(g,0,0,32,32,'#1a1330');
+  if(who==='hero'){
+   R(g,6,4,20,4,'#f2c95c');R(g,4,8,24,3,'#e8b84b');R(g,6,8,20,1,'#c98f2e');
+   R(g,8,11,16,3,'#6b4423');R(g,9,14,14,12,'#ffd9b3');R(g,8,14,2,9,'#6b4423');R(g,22,14,2,9,'#6b4423');
+   R(g,12,17,3,4,'#2b2b3a');R(g,18,17,3,4,'#2b2b3a');R(g,12,17,1,2,'#fff');R(g,18,17,1,2,'#fff');
+   R(g,11,22,3,2,'#ff9f9f');R(g,19,22,3,2,'#ff9f9f');R(g,14,24,5,2,'#d98b7a');
+   R(g,9,26,14,6,'#4caf6d');R(g,9,26,14,2,'#3a8b53');
+  } else if(who==='borong'){
+   R(g,4,6,24,24,'#6b4a2a');R(g,6,4,20,6,'#3f9e4f');R(g,2,8,8,8,'#3f9e4f');R(g,22,8,8,8,'#3f9e4f');
+   R(g,8,10,16,14,'#8f6a3e');R(g,10,14,4,4,'#fff6e2');R(g,18,14,4,4,'#fff6e2');
+   R(g,11,15,2,3,'#2b2b3a');R(g,19,15,2,3,'#2b2b3a');R(g,12,20,8,2,'#5a3a1e');
+   R(g,8,24,16,8,'#d8d0c0');R(g,10,26,3,6,'#d8d0c0');R(g,20,26,3,6,'#d8d0c0');
+   R(g,6,2,4,4,'#62c46a');R(g,22,2,4,4,'#62c46a');
+  } else if(who==='puju'){
+   R(g,8,8,16,18,'#8fdcff');R(g,6,12,20,10,'#8fdcff');R(g,10,6,12,3,'#8fdcff');
+   R(g,6,12,2,10,'#2f86c9');R(g,24,12,2,10,'#2f86c9');R(g,10,6,12,1,'#2f86c9');
+   R(g,4,14,4,6,'rgba(255,255,255,.9)');R(g,24,14,4,6,'rgba(255,255,255,.9)');
+   R(g,12,14,4,5,'#fff');R(g,18,14,4,5,'#fff');R(g,14,15,2,4,'#1a2340');R(g,20,15,2,4,'#1a2340');
+   R(g,14,22,5,2,'#ff9ec4');R(g,15,4,2,3,'#2f86c9');R(g,14,2,4,3,'#fff36b');
+  } else if(who==='wu'){
+   for(let i=0;i<40;i++){const x=(i*13)%30+1,y=(i*7)%30+1;R(g,x,y,2,2,i%3?'#3a2247':'#6b2f8f');}
+   R(g,8,10,16,14,'#2a1030');R(g,10,14,5,4,'#ff4d6d');R(g,18,14,5,4,'#ff4d6d');
+   R(g,11,15,2,2,'#fff');R(g,19,15,2,2,'#fff');R(g,12,22,8,2,'#7a3b8f');
+   R(g,4,4,6,6,'rgba(122,59,143,.6)');R(g,22,6,6,6,'rgba(122,59,143,.5)');
+  } else if(who==='lan'){
+   R(g,6,10,20,18,'#5aa8ff');R(g,4,14,24,12,'#5aa8ff');R(g,4,14,2,12,'#1f4f9e');R(g,26,14,2,12,'#1f4f9e');
+   R(g,10,14,5,6,'#fff');R(g,18,14,5,6,'#fff');R(g,12,16,3,4,'#12224a');R(g,20,16,3,4,'#12224a');
+   R(g,13,24,6,2,'#ffcf4d');R(g,8,4,16,4,'#ffcf4d');R(g,8,4,3,3,'#ffe08a');R(g,21,4,3,3,'#ffe08a');
+   R(g,14,2,4,3,'#ff5d6c');R(g,2,16,5,7,'rgba(255,255,255,.8)');R(g,25,16,5,7,'rgba(255,255,255,.8)');
+  } else { // leaf 旁白
+   R(g,8,8,16,16,'#3f9e4f');R(g,10,6,12,4,'#62c46a');R(g,15,10,2,16,'#2c7a3d');
+   R(g,10,12,6,2,'#62c46a');R(g,17,16,6,2,'#62c46a');
+  }
+ });
+}
+
+/* ===================== 劇情文本 ===================== */
+const STORY={
+prologue:[
+ {bg:'city',sp:'',tx:'台北市，一座被山與河擁抱的城市。'},
+ {bg:'city',sp:'',tx:'在鋼筋水泥之間，一座座公園像綠色的心臟，日夜不停地為城市呼吸。'},
+ {bg:'city',sp:'',tx:'可是這一年春天，公園裡的樹木開始枯萎了。葉子變成鐵鏽色，樹皮裂開，空氣中飄著淡淡的藍色霧氣。'},
+ {bg:'dark',sp:'',tx:'樹木醫生公會發出緊急召集令——「所有見習生，立刻出動！」'},
+ {bg:'dusk',sp:'hero',tx:'我、我是小柚！雖然才剛領到星光斧，還是個見習樹木醫生……可是，如果沒有人動手，這些樹就沒救了！'},
+ {bg:'dusk',sp:'borong',tx:'小柚啊……咳、咳咳。老朽是大安森林公園的老榕樹精，已經在這片土地上站了三百年囉。'},
+ {bg:'dusk',sp:'borong',tx:'這藍色的霧，叫「藍枯病」。病樹的孢子會隨風散播，健康的樹只要一沾上，七天就會枯死。'},
+ {bg:'dusk',sp:'borong',tx:'唯一的辦法，就是在孢子成熟之前，把病樹砍倒、燒掉，切斷傳染鏈。'},
+ {bg:'dusk',sp:'hero',tx:'砍、砍倒他們？可是……樹木不是應該要被保護的嗎？'},
+ {bg:'dusk',sp:'borong',tx:'孩子，有時候為了守護整片森林，必須忍痛揮下斧頭。'},
+ {bg:'dusk',sp:'borong',tx:'記住：你砍下的每一斧，都是為了讓下一棵樹能活下去。'},
+ {bg:'dusk',sp:'borong',tx:'還有——小心那些藍色的小精靈。他們被藍霧迷惑了，會偷偷把病樹「治好」，讓瘟疫繼續蔓延。'},
+ {bg:'dusk',sp:'hero',tx:'好！星光斧，出發！二十座公園，我一定會全部救回來的！'},
+ {bg:'dusk',sp:'',tx:'於是——「砍樹大作戰」正式展開。'}
+],
+ch1:[
+ {bg:'dusk',sp:'hero',tx:'呼……第五座公園也清乾淨了。可是斧頭都快鈍了，手也在發抖。'},
+ {bg:'dusk',sp:'borong',tx:'做得好，小柚。老朽把三百年年輪的力量，注入你的斧頭——星光斧，二段解放！'},
+ {bg:'dusk',sp:'puju',tx:'噗啾噗啾！不可以砍樹！樹木是我們的家！'},
+ {bg:'dusk',sp:'hero',tx:'可是這些樹已經生病了……不砍掉，隔壁的樹也會死。'},
+ {bg:'dusk',sp:'puju',tx:'騙人！藍藍王說，是人類讓樹生病的！只要我們把樹治好，一切都會沒事的！'},
+ {bg:'dusk',sp:'borong',tx:'唉……那些孩子被灰霧之母的低語欺騙了。真正的黑手，在陽明山深處。'},
+ {bg:'dusk',sp:'hero',tx:'灰霧之母？'},
+ {bg:'dusk',sp:'borong',tx:'一株寄生在百年病樹核心的邪惡菌絲體。她利用藍精靈的純真，把整座城市變成她的苗床。'},
+ {bg:'dusk',sp:'hero',tx:'那我更要把所有病樹砍倒，斷了她的糧食！第二章——出發！'}
+],
+ch2:[
+ {bg:'dark',sp:'puju',tx:'呜……为什么……我们明明把树都治好了，树却枯得更快了……'},
+ {bg:'dark',sp:'hero',tx:'因為你們「治好」的樹，正把孢子散給隔壁健康的樹。看，這朵藍色的花——那是孢子囊。'},
+ {bg:'dark',sp:'puju',tx:'蓝蓝王说……只要打败砍树人，森林就会得救……我们、我们做错了吗？'},
+ {bg:'dark',sp:'borong',tx:'孩子，你們沒有錯，只是被騙了。灰霧之母藏在陽明山的「枯萎之心」裡。'},
+ {bg:'dark',sp:'puju',tx:'我知道路！我带你们去！还有，这个「净化的铃铛」送给你们——摇一摇，蓝雾就会暂时散开。'},
+ {bg:'dawn',sp:'hero',tx:'謝謝你，噗啾！那……從現在開始，我們是夥伴了！'},
+ {bg:'dawn',sp:'',tx:'藍色小精靈不再搗亂了——但他們還是會調皮地跑來跑去，因為，那就是精靈的天性嘛。'}
+],
+ch3:[
+ {bg:'dark',sp:'borong',tx:'咳……咳咳……小柚，老朽的葉子……開始變藍了。'},
+ {bg:'dark',sp:'hero',tx:'老榕伯！你也被感染了？！'},
+ {bg:'dark',sp:'borong',tx:'三百年前，我就和這片土地訂下契約。我的根，連著台北所有的公園。'},
+ {bg:'dark',sp:'borong',tx:'灰霧之母每多活一天，我就多枯一分。不過沒關係……老朽已經把最後的力量，放進這顆「星光果實」裡。'},
+ {bg:'dark',sp:'borong',tx:'時間，會站在你這一邊。'},
+ {bg:'dark',sp:'hero',tx:'我不要什麼果實！我要你活下去！'},
+ {bg:'dark',sp:'borong',tx:'傻孩子。樹木醫生最重要的，不是讓每一棵樹都活著，而是讓整座森林活下去。'},
+ {bg:'dark',sp:'borong',tx:'去吧，往陽明山。枯萎之心，就在硫煙的最深處……'},
+ {bg:'dark',sp:'',tx:'那一夜，大安森林公園最老的那棵榕樹，落下了最後一片葉子。'}
+],
+ch4:[
+ {bg:'dark',sp:'puju',tx:'前面就是枯萎之心了……蓝蓝王在里面，还有灰雾之母。'},
+ {bg:'dark',sp:'hero',tx:'噗啾，你害怕嗎？'},
+ {bg:'dark',sp:'puju',tx:'有一点点。但是……如果我不去，蓝蓝王会一直一直做恶梦。'},
+ {bg:'dark',sp:'hero',tx:'那我們一起。星光斧，最後一次——出發！'},
+ {bg:'dark',sp:'wu',tx:'……小小的見習生，也想砍掉我三百年的根？'},
+ {bg:'dark',sp:'wu',tx:'這座城市的水泥，比我更會殺死樹木。我只是……讓他們快一點解脫罷了。'},
+ {bg:'dark',sp:'hero',tx:'不對。樹不會說話，可是他們一直在努力活著。你只是害怕自己被遺忘！'},
+ {bg:'dark',sp:'',tx:'最終決戰——枯萎之心。'}
+],
+ending:[
+ {bg:'dark',sp:'wu',tx:'不……不可能……我的孢子……竟然被星光……'},
+ {bg:'dawn',sp:'',tx:'枯萎之心轟然倒下，藍色的霧氣化作點點螢光，飄向台北的天空。'},
+ {bg:'dawn',sp:'puju',tx:'蓝蓝王！蓝蓝王你醒醒！'},
+ {bg:'dawn',sp:'lan',tx:'……噗啾？我、我做了好長好長的夢。夢裡，我一直在哭。'},
+ {bg:'dawn',sp:'hero',tx:'沒事了。夢醒了。'},
+ {bg:'dawn',sp:'borong',tx:'……小柚……做得好……老朽在根的最深處，還留了一點力氣……明年春天，我會再發一次芽……'},
+ {bg:'dawn',sp:'hero',tx:'老榕伯……！我等你。我一定每天來澆水！'},
+ {bg:'dawn',sp:'',tx:'三個月後。'},
+ {bg:'dawn',sp:'',tx:'二十座公園，種下了三萬兩千棵新樹。藍色的小精靈在枝葉間穿梭——這一次，他們是來幫忙澆水的。'},
+ {bg:'dawn',sp:'hero',tx:'「見習樹木醫生・小柚」——不對，是「正式樹木醫生・小柚」！'},
+ {bg:'dawn',sp:'puju',tx:'小柚医生！下一座公园的树又生病了！'},
+ {bg:'dawn',sp:'hero',tx:'唉唷——好啦好啦！星光斧，出發！'},
+ {bg:'dawn',sp:'',tx:'台北市的公園，今天也在努力地呼吸著。'},
+ {bg:'dawn',sp:'',tx:'只要有人願意揮下斧頭，森林就永遠不會結束。'}
+]
+};
+
+/* ===================== 關卡資料 ===================== */
+const LEVELS=[
+ {p:'二二八和平紀念公園',d:'中正區',ch:1,w:6,h:6,t:{br:3},sp:0,ss:3,wa:1,he:1,tight:0,
+  tip:'教學：方向鍵移動。走到病樹旁邊，就會自動揮斧！砍倒全部病樹即可過關。'},
+ {p:'大龍公園',d:'大同區',ch:1,w:6,h:6,t:{br:3,ye:2},sp:1,ss:3,wa:1,he:2,tight:0,
+  tip:'藍色小精靈出現了！牠們會把病樹「治好」。砍倒精靈旁邊的樹可以把牠嚇跑。'},
+ {p:'青年公園',d:'萬華區',ch:1,w:7,h:7,t:{br:4,ye:3},sp:1,ss:3,wa:2,he:2,tight:1,
+  tip:'連鎖！葉枯病樹倒下時會衝撃周圍8格。想清楚再下斧，可省下大量步數。'},
+ {p:'新生公園',d:'中山區',ch:1,w:7,h:7,t:{br:3,wh:2,ye:2},sp:2,ss:3,wa:3,he:2,tight:1,
+  tip:'白紋羽病 HP3，很硬。用葉枯病的衝撃波幫你先削血吧。'},
+ {p:'敦安公園',d:'松山區',ch:1,w:7,h:7,t:{br:4,wh:2,ye:2},sp:2,ss:2,wa:2,he:3,tight:2,boss:{hp:10},
+  tip:'第一章BOSS：變異病樹王！牠會定期召喚小精靈，速戰速決！',cut:'ch1'},
+
+ {p:'大安森林公園',d:'大安區',ch:2,w:8,h:8,t:{br:4,wh:3,ye:3},sp:2,ss:2,wa:2,he:3,tight:2,
+  tip:'星光斧二段解放！現在一斧造成 2 點傷害。'},
+ {p:'中強公園',d:'信義區',ch:2,w:8,h:8,t:{br:3,wh:3,ye:3,bk:1},sp:3,ss:3,wa:3,he:3,tight:2,
+  tip:'炭疽病樹 HP4，倒下時十字衝撃「所有」樹——最強的連鎖引信。'},
+ {p:'碧湖公園',d:'內湖區',ch:2,w:8,h:8,t:{br:4,wh:2,ye:4,bk:1},sp:3,ss:2,wa:5,he:2,tight:3,
+  tip:'水池不能通行，繞路會耗掉步數。規劃最短路線！'},
+ {p:'大湖公園',d:'內湖區',ch:2,w:9,h:9,t:{br:4,wh:3,ye:3,bk:2},sp:3,ss:2,wa:6,he:3,tight:3,
+  tip:'精靈行動更快了（每2步動一次）。先想好誰會去治哪棵樹。'},
+ {p:'南港公園',d:'南港區',ch:2,w:9,h:9,t:{br:4,wh:3,ye:3,bk:2},sp:3,ss:2,wa:4,he:4,tight:3,boss:{hp:14},
+  tip:'第二章BOSS：灰霧孢子母。她召喚精靈的速度極快！',cut:'ch2'},
+
+ {p:'雙溪公園',d:'士林區',ch:3,w:9,h:9,t:{br:5,wh:3,ye:4,bk:2},sp:3,ss:2,wa:5,he:4,tight:4,
+  tip:'秋天的雙溪，落葉蓋住了路徑。注意步數！'},
+ {p:'北投公園',d:'北投區',ch:3,w:9,h:9,t:{br:4,wh:4,ye:4,bk:2},sp:4,ss:2,wa:7,he:3,tight:4,
+  tip:'溫泉霧氣讓精靈更活躍。用淨化鈴鐺清場是好選擇。'},
+ {p:'木柵公園',d:'文山區',ch:3,w:10,h:10,t:{br:5,wh:4,ye:5,bk:2},sp:4,ss:2,wa:5,he:5,tight:5,
+  tip:'星光果實取得！步數不夠時按 2 使用（+8步）。'},
+ {p:'西園公園',d:'萬華區',ch:3,w:10,h:10,t:{br:4,wh:5,ye:4,bk:3},sp:4,ss:2,wa:4,he:6,tight:5,
+  tip:'這裡的樹被二次感染了，白紋羽病特別多。善用同種連鎖。'},
+ {p:'林森公園（夜）',d:'中山區',ch:3,w:10,h:10,t:{br:5,wh:4,ye:5,bk:3},sp:5,ss:2,wa:4,he:5,tight:5,boss:{hp:18},
+  tip:'第三章BOSS：夜霧病樹。老榕伯……撐得住嗎？',cut:'ch3'},
+
+ {p:'民生新東公園',d:'松山區',ch:4,w:10,h:10,t:{br:5,wh:5,ye:5,bk:3},sp:5,ss:1,wa:5,he:6,tight:6,
+  tip:'精靈每步都會動！這是最後衝刺，流星斬已解鎖（按3）。'},
+ {p:'大安森林公園・腐化',d:'大安區',ch:4,w:10,h:10,t:{br:5,wh:5,ye:6,bk:4},sp:5,ss:1,wa:4,he:7,tight:6,
+  tip:'老榕伯的家。把被腐化的根全部斬斷，讓他安息。'},
+ {p:'福德公園',d:'信義區',ch:4,w:10,h:10,t:{br:6,wh:5,ye:6,bk:4},sp:6,ss:1,wa:5,he:6,tight:6,
+  tip:'精靈海！先用鈴鐺清場，再一口氣連鎖。'},
+ {p:'陽明山前山公園',d:'士林區',ch:4,w:10,h:10,t:{br:5,wh:5,ye:6,bk:4},sp:5,ss:1,wa:6,he:7,tight:7,boss:{hp:22},
+  tip:'硫煙中的守門病樹。打倒牠，枯萎之心就會現形。',cut:'ch4'},
+ {p:'陽明山・枯萎之心',d:'北投區',ch:4,w:10,h:10,t:{br:6,wh:6,ye:6,bk:5},sp:4,ss:1,wa:5,he:8,tight:6,boss:{hp:30},
+  tip:'最終決戰！灰霧之母的本體。星光斧，全部的力量——揮下去！',cut:'end'}
+];
+const CH_NAME=['','第一章・城中之綠','第二章・東區風暴','第三章・山腳迷霧','最終章・藍霧之心'];
+const CH_MUS=['','field1','field2','field3','boss'];
+
+/* ===================== 遊戲狀態 ===================== */
+const G={mode:'title',lvl:0,unlocked:1,stars:{},heroLv:1,xp:0,xpNext:30,maxHP:3,axeLv:1,
+ charges:{bell:1,fruit:0,burst:0},bestStars:0,demo:null,log:[]};
+let L=null;
+
+function save(){ try{localStorage.setItem('chopTreeSave',JSON.stringify(
+ {u:G.unlocked,s:G.stars,lv:G.heroLv,xp:G.xp,xn:G.xpNext,hp:G.maxHP,ax:G.axeLv,ch:G.charges}));}catch(e){} }
+function load(){ try{const d=JSON.parse(localStorage.getItem('chopTreeSave')||'null'); if(d){
+ G.unlocked=d.u||1;G.stars=d.s||{};G.heroLv=d.lv||1;G.xp=d.xp||0;G.xpNext=d.xn||30;G.maxHP=d.hp||3;G.axeLv=d.ax||1;G.charges=d.ch||G.charges;}}catch(e){} }
+function totalStars(){let t=0;for(const k in G.stars)t+=G.stars[k];return t;}
+
+/* ===================== 關卡生成 ===================== */
+const T_G=0,T_P=1,T_W=2,T_F=3,T_H=4,T_B=5,T_ST=6,T_R=7;
+function genLevel(idx){
+ const cfg=LEVELS[idx], rnd=mulberry32(90210+idx*7919);
+ const w=cfg.w,h=cfg.h;
+ let best=null;
+ for(let att=0;att<80;att++){
+  const tiles=new Array(w*h).fill(T_G);
+  // 裝飾：花、路
+  for(let i=0;i<w*h*0.16;i++)tiles[Math.floor(rnd()*w*h)]=T_F;
+  for(let i=0;i<w*h*0.08;i++)tiles[Math.floor(rnd()*w*h)]=T_P;
+  // 水
+  let wc=cfg.wa||0,guard=0;
+  while(wc>0&&guard++<400){const x=Math.floor(rnd()*w),y=Math.floor(rnd()*h);
+   if(tiles[y*w+x]===T_G||tiles[y*w+x]===T_F){tiles[y*w+x]=T_W;wc--; if(rnd()<.4&&x+1<w)tiles[y*w+x+1]=T_W;}}
+  // 籬笆/岩石/長椅
+  let hc=(cfg.he||0)*2; guard=0;
+  while(hc>0&&guard++<400){const x=Math.floor(rnd()*w),y=Math.floor(rnd()*h);
+   if(tiles[y*w+x]===T_G||tiles[y*w+x]===T_F){tiles[y*w+x]=rnd()<.55?T_H:(rnd()<.5?T_R:T_B);hc--;}}
+  // 樹
+  const trees=[]; const kinds=[];
+  for(const k in cfg.t)for(let i=0;i<cfg.t[k];i++)kinds.push(k);
+  if(cfg.boss)kinds.push('boss');
+  let fail=false;
+  for(const k of kinds){
+   let put=false;
+   for(let t=0;t<300&&!put;t++){
+    const x=Math.floor(rnd()*w),y=Math.floor(rnd()*h);
+    if(tiles[y*w+x]!==T_G&&tiles[y*w+x]!==T_F&&tiles[y*w+x]!==T_P)continue;
+    if(trees.some(o=>o.x===x&&o.y===y))continue;
+    if(cfg.boss&&k==='boss'){ if(x<w/2-1||x>w/2+1||y<h/2-1||y>h/2+1)continue; }
+    const maxhp=k==='boss'?(cfg.boss.hp):DIS[k].hp;
+    trees.push({x,y,type:k,hp:maxhp,max:maxhp,gone:false,sh:0,fl:0});
+    put=true;
+   }
+   if(!put){fail=true;break;}
+  }
+  if(fail)continue;
+  // 起點：離樹最遠的可走格
+  let sx=0,sy=0,bestD=-1;
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+   if(!passable(tiles,y*w+x))continue;
+   if(trees.some(t=>Math.abs(t.x-x)+Math.abs(t.y-y)<=1))continue;
+   let d=99;trees.forEach(t=>{d=Math.min(d,Math.abs(t.x-x)+Math.abs(t.y-y));});
+   if(d>bestD){bestD=d;sx=x;sy=y;}
+  }
+  // 連通性驗證
+  const seen=new Uint8Array(w*h); const q=[sy*w+sx]; seen[sy*w+sx]=1;
+  while(q.length){const c=q.pop(),cx=c%w,cy=(c-cx)/w;
+   [[1,0],[-1,0],[0,1],[0,-1]].forEach(([dx,dy])=>{const nx=cx+dx,ny=cy+dy;
+    if(nx<0||ny<0||nx>=w||ny>=h)return;const nc=ny*w+nx;if(seen[nc])return;
+    if(!passable(tiles,nc))return;seen[nc]=1;q.push(nc);});}
+  let ok=true;
+  for(const t of trees){ let adj=false;
+   [[1,0],[-1,0],[0,1],[0,-1]].forEach(([dx,dy])=>{const nx=t.x+dx,ny=t.y+dy;
+    if(nx<0||ny<0||nx>=w||ny>=h)return;const nc=ny*w+nx;
+    if(passable(tiles,nc)&&seen[nc])adj=true;});
+   if(!adj)ok=false; }
+  if(!ok)continue;
+  best={tiles,trees,sx,sy};
+  if(att>3)break;
+ }
+ if(!best){ // 保底：清空障礙
+  const tiles=new Array(w*h).fill(T_G); const trees=[]; const kinds=[];
+  for(const k in cfg.t)for(let i=0;i<cfg.t[k];i++)kinds.push(k);
+  if(cfg.boss)kinds.push('boss');
+  let i=0; kinds.forEach((k,n)=>{const x=(n*3+1)%w,y=Math.floor((n*3+1)/w)%h;
+   const maxhp=k==='boss'?cfg.boss.hp:DIS[k].hp; trees.push({x,y,type:k,hp:maxhp,max:maxhp,gone:false,sh:0,fl:0});});
+  best={tiles,trees,sx:0,sy:h-1};
+ }
+ const ts=Math.min(26,Math.floor(300/cfg.w),Math.floor(212/cfg.h));
+ const dmg=G.axeLv;
+ let hpSum=0;best.trees.forEach(t=>hpSum+=t.hp);
+ const moves=Math.max(14,Math.ceil(Math.ceil(hpSum/dmg)*0.95)+best.trees.length+9-(cfg.tight||0)+2*(G.heroLv-1));
+ return {cfg,idx,w:best.w||cfg.w,h:cfg.h,tiles:best.tiles,w:cfg.w,ts,
+  ox:Math.round((320-cfg.w*ts)/2),oy:Math.round((240-cfg.h*ts)/2),
+  trees:best.trees,sprites:[],px:best.sx,py:best.sy,dir:[1,0],
+  moves,movesMax:moves,hp:G.maxHP,maxhp:G.maxHP,left:best.trees.length,total:best.trees.length,
+  turn:0,busy:false,parts:[],floats:[],shake:0,bell:G.charges.bell,fruit:G.charges.fruit,burst:G.charges.burst,
+  ch:cfg.ch,frame:0,msg:'',hint:0};
+}
+function passable(tiles,i){const t=tiles[i];return t===T_G||t===T_P||t===T_F||t===T_ST;}
+
+/* ===================== 記錄 / HUD ===================== */
+function log(s){ G.log.unshift(s); if(G.log.length>6)G.log.pop();
+ $('log').innerHTML=G.log.map(x=>'<div>'+x+'</div>').join(''); }
+function updHUD(){
+ if(!L)return;
+ $('hHearts').innerHTML='♥'.repeat(Math.max(0,L.hp))+'<span style="color:#4a3a6a">'+'♥'.repeat(Math.max(0,L.maxhp-L.hp))+'</span>';
+ $('hMoves').innerHTML=L.moves+' <small>/ '+L.movesMax+'</small>';
+ $('hMovesBar').style.width=(100*L.moves/L.movesMax)+'%';
+ $('hTrees').innerHTML=L.left+' <small>/ '+L.total+' 棵</small>';
+ $('hPark').textContent='Lv.'+(L.idx+1)+' '+L.cfg.p;
+ $('hLv').textContent=G.heroLv; $('hXp').textContent=G.xp; $('hXpN').textContent=G.xpNext;
+ $('hXpBar').style.width=clamp(100*G.xp/G.xpNext,0,100)+'%';
+ $('chapterTag').textContent='Lv.'+(L.idx+1)+' '+CH_NAME[L.cfg.ch];
+ const sk=[['bell',L.bell,3],['fruit',L.fruit,8],['burst',L.burst,13]];
+ sk.forEach((s,i)=>{const b=$('sk'+i);const unlocked=(L.idx+1)>=s[2];
+  b.classList.toggle('lock',!unlocked); b.disabled=!unlocked||s[1]<=0||L.busy;
+  b.querySelector('.chg').textContent=unlocked?s[1]:'🔒';});
+}
+function gainXP(n){ G.xp+=n;
+ while(G.xp>=G.xpNext){ G.xp-=G.xpNext; G.heroLv++; G.xpNext=30+G.heroLv*26; G.maxHP=Math.min(6,G.maxHP+1);
+  G.charges.bell=1+Math.floor(G.heroLv/3); G.charges.fruit=Math.floor(G.heroLv/4); G.charges.burst=Math.floor((G.heroLv-2)/4);
+  AU.sfx('lv'); log('★ 樹醫等級提升！LV.'+G.heroLv+'（體力上限+1・技能補充）');
+  floatText(L?L.px:0,L?L.py:0,'LEVEL UP!','#ffe08a',1.4); }
+ save();
+}
+
+/* ===================== 特效 ===================== */
+function part(x,y,n,col,sp,life){ for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2,s=(.3+Math.random())*(sp||1);
+ L.parts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-.4,l:life||40,m:life||40,c:col,s:1+Math.random()*1.6});} }
+function floatText(tx,ty,text,col,big){ if(!L)return;
+ L.floats.push({x:L.ox+(tx+.5)*L.ts,y:L.oy+(ty+.2)*L.ts,t:text,c:col||'#fff',l:46,m:46,big:big||1}); }
+
+/* ===================== 遊戲邏輯 ===================== */
+function treeAt(x,y){ return L.trees.find(t=>!t.gone&&t.x===x&&t.y===y); }
+function sprAt(x,y){ return L.sprites.find(s=>s.x===x&&s.y===y); }
+function inb(x,y){return x>=0&&y>=0&&x<L.w&&y<L.h;}
+
+async function spend(n){ L.moves-=n; updHUD();
+ if(L.moves<=0){ await sleep(200); await fail('步數用盡了……病樹的孢子已經成熟。'); } }
+
+async function tryMove(dx,dy){
+ if(!L||L.busy||G.mode!=='play')return;
+ L.dir=[dx,dy]; const nx=L.px+dx,ny=L.py+dy;
+ if(!inb(nx,ny)){return;}
+ const tr=treeAt(nx,ny);
+ if(tr){ await doChop(tr); return; }
+ if(!passable(L.tiles,ny*L.w+nx)){ L.shake=3; AU.sfx('step'); return; }
+ const sp=sprAt(nx,ny);
+ if(sp){ L.busy=true; AU.sfx('poof'); part(L.ox+(nx+.5)*L.ts,L.oy+(ny+.5)*L.ts,10,'#8fdcff',1.4);
+  log('◎ 你伸手想抓住小精靈，牠「噗」地一聲閃開了！');
+  L.sprites=L.sprites.filter(s=>s!==sp); teleport(sp); L.sprites.push(sp);
+  L.busy=false; await afterTurn(); return; }
+ L.px=nx;L.py=ny;L.frame^=1; AU.sfx('step');
+ await afterTurn();
+}
+function teleport(sp){ let x,y,t=0; do{ x=Math.floor(Math.random()*L.w); y=Math.floor(Math.random()*L.h); t++; }
+ while(t<80&&(Math.abs(x-L.px)+Math.abs(y-L.py)<3||sprAt(x,y))); sp.x=x;sp.y=y; }
+
+async function doChop(tr){
+ if(!tr){ const nx=L.px+L.dir[0],ny=L.py+L.dir[1]; tr=treeAt(nx,ny); }
+ if(!tr)return;
+ L.busy=true; AU.sfx('chop'); tr.sh=9; L.hint=0;
+ const cx=L.ox+(tr.x+.5)*L.ts, cy=L.oy+(tr.y+.5)*L.ts;
+ part(cx,cy,7,'#c9975a',1.3);
+ await sleep(110);
+ damage(tr,G.axeLv);
+ await resolveDeaths();
+ L.busy=false;
+ await afterTurn();
+}
+function damage(t,d){ if(t.gone)return; t.hp-=d; t.fl=8;
+ const D=DIS[t.type];
+ floatText(t.x,t.y,'-'+d,D.col,1);
+ if(t.type==='boss'){ AU.sfx('hit'); L.shake=Math.max(L.shake,4); } else AU.sfx('hit');
+ if(t.hp<=0)t.hp=0;
+}
+async function resolveDeaths(){
+ let guard=0;
+ while(guard++<300){
+  const dead=L.trees.filter(t=>!t.gone&&t.hp<=0);
+  if(!dead.length)break;
+  for(const t of dead) await killTree(t);
+ }
+}
+function neigh(t,mode){
+ const out=[]; const all8=[[-1,-1],[0,-1],[1,-1],[-1,0],[1,0],[-1,1],[0,1],[1,1]];
+ const all4=[[0,-1],[-1,0],[1,0],[0,1]];
+ const list=(mode===8)?all8:all4;
+ for(const[dx,dy]of list){const x=t.x+dx,y=t.y+dy; if(!inb(x,y))continue;
+  const o=L.trees.find(z=>!z.gone&&z.x===x&&z.y===y);
+  if(!o)continue;
+  if(mode==='same4'){ if(o.type===t.type)out.push(o); }
+  else if(mode==='same+'){ if(o.type===t.type||o.type==='bk')out.push(o); }
+  else out.push(o); }
+ return out;
+}
+async function killTree(t){
+ t.gone=true; const cx=L.ox+(t.x+.5)*L.ts, cy=L.oy+(t.y+.5)*L.ts;
+ L.tiles[t.y*L.w+t.x]=T_ST;
+ L.left--; AU.sfx('down'); L.shake=Math.max(L.shake,t.type==='boss'?9:4);
+ part(cx,cy,18,DIS[t.type].col,2.1,55); part(cx,cy,10,'#7a4a24',1.6,45);
+ floatText(t.x,t.y,'TIMBER!','#ffe08a',1.1);
+ gainXP(t.type==='boss'?DIS.boss.xp:DIS[t.type].xp);
+ log('◎ 砍倒了 '+L.cfg.d+'・'+L.cfg.p+' 的「'+DIS[t.type].name+'」病樹！(+'+(t.type==='boss'?DIS.boss.xp:DIS[t.type].xp)+'XP)');
+ // 嚇跑旁邊的精靈
+ const scared=L.sprites.filter(s=>Math.abs(s.x-t.x)<=1&&Math.abs(s.y-t.y)<=1);
+ for(const s of scared){ AU.sfx('poof'); part(L.ox+(s.x+.5)*L.ts,L.oy+(s.y+.5)*L.ts,12,'#8fdcff',1.6);
+  log('◎ 藍色小精靈被倒下的樹嚇跑了！'); }
+ L.sprites=L.sprites.filter(s=>!scared.includes(s));
+ await sleep(150);
+ // 連鎖
+ const nb=neigh(t,DIS[t.type].chain);
+ for(const o of nb){ damage(o,1); part(L.ox+(o.x+.5)*L.ts,L.oy+(o.y+.5)*L.ts,6,'#fff36b',1.4);
+  floatText(o.x,o.y,'連鎖!','#fff36b',.9); await sleep(85); }
+ if(nb.length)log('◎ 連鎖反應！波及 '+nb.length+' 棵樹。');
+ await sleep(60);
+}
+
+async function afterTurn(){
+ if(!L)return;
+ L.turn++;
+ await spritePhase();
+ updHUD();
+ await checkEnd();
+}
+async function spritePhase(){
+ const cfg=L.cfg;
+ // BOSS 召喚
+ if(cfg.boss){ const b=L.trees.find(t=>t.type==='boss'&&!t.gone);
+  if(b&&L.turn%(cfg.ch>=4?4:6)===0&&L.sprites.length<7){
+   spawnSprite(b.x,b.y); AU.sfx('heal'); floatText(b.x,b.y,'召喚!','#a06bff',1);
+   log('⚠ 枯萎之心召喚了一隻藍色小精靈！'); } }
+ if(L.turn%cfg.ss!==0)return;
+ for(const s of L.sprites.slice()){
+  if(s.stun>0){s.stun--;continue;}
+  // 目標：最近的活樹
+  let tgt=null,bd=999;
+  for(const t of L.trees){ if(t.gone)continue; const d=Math.abs(t.x-s.x)+Math.abs(t.y-s.y);
+   if(d<bd||(d===bd&&Math.random()<.4)){bd=d;tgt=t;} }
+  if(tgt){
+   let dx=Math.sign(tgt.x-s.x),dy=Math.sign(tgt.y-s.y);
+   let moved=false;
+   const tries=(Math.random()<.5)?[[dx,0],[0,dy],[dx,dy]]:[[0,dy],[dx,0],[dx,dy]];
+   for(const[ax,ay]of tries){ if(!ax&&!ay)continue; const nx=s.x+ax,ny=s.y+ay;
+    if(!inb(nx,ny))continue; if(sprAt(nx,ny))continue; s.x=nx;s.y=ny;moved=true;break; }
+   if(!moved&&Math.random()<.4){const a=Math.floor(Math.random()*4);const d=[[1,0],[-1,0],[0,1],[0,-1]][a];
+    const nx=s.x+d[0],ny=s.y+d[1]; if(inb(nx,ny)&&!sprAt(nx,ny)){s.x=nx;s.y=ny;}}
+  } else { if(Math.random()<.5){const d=[[1,0],[-1,0],[0,1],[0,-1]][Math.floor(Math.random()*4)];
+    const nx=s.x+d[0],ny=s.y+d[1]; if(inb(nx,ny)&&!sprAt(nx,ny)){s.x=nx;s.y=ny;}} }
+  s.f^=1;
+  // 治樹
+  const onTree=L.trees.find(t=>!t.gone&&t.x===s.x&&t.y===s.y);
+  if(onTree&&s.cd<=0&&onTree.hp<onTree.max){ onTree.hp++; onTree.fl=8; s.cd=3; AU.sfx('heal');
+   floatText(onTree.x,onTree.y,'HP+1','#8fdcff',1); part(L.ox+(s.x+.5)*L.ts,L.oy+(s.y+.5)*L.ts,8,'#bfe9ff',1.2);
+   log('⚠ 小精靈把「'+DIS[onTree.type].name+'」病樹治好了！（HP+1）'); }
+  if(s.cd>0)s.cd--;
+  // 搗亂
+  if(Math.abs(s.x-L.px)+Math.abs(s.y-L.py)<=1&&!s.mad){ s.mad=true; AU.sfx('hurt'); L.shake=7;
+   L.hp--; L.moves=Math.max(0,L.moves-1); floatText(L.px,L.py,'-1 HP','#ff5d6c',1.2);
+   log('⚠ 小精靈朝你丟藍漿果！體力-1・步數-1'); part(L.ox+(L.px+.5)*L.ts,L.oy+(L.py+.5)*L.ts,10,'#6fa8ff',1.5);
+   teleport(s); await sleep(220); if(L.hp<=0){return;} }
+  else if(Math.random()<.15)s.mad=false;
+ }
+}
+function spawnSprite(bx,by){
+ let x,y,t=0; do{ x=Math.floor(Math.random()*L.w); y=Math.floor(Math.random()*L.h); t++; }
+ while(t<60&&(Math.abs(x-L.px)+Math.abs(y-L.py)<2||sprAt(x,y)));
+ L.sprites.push({x,y,f:0,cd:0,stun:0,mad:false});
+ part(L.ox+(x+.5)*L.ts,L.oy+(y+.5)*L.ts,10,'#8fdcff',1.4);
+}
+function initSprites(){ L.sprites=[]; const n=L.cfg.sp||0; for(let i=0;i<n;i++)spawnSprite(); }
+
+async function checkEnd(){
+ if(!L||G.mode!=='play')return;
+ if(L.left<=0){ await win(); return; }
+ if(L.hp<=0){ await fail('體力耗盡了……小柚跌坐在草地上。'); return; }
+ if(L.moves<=0){ await fail('步數用盡，孢子已經隨風散出去了……'); return; }
+}
+async function win(){
+ G.mode='clear'; L.busy=true; AU.sfx('win');
+ const ratio=L.moves/L.movesMax;
+ const st=ratio>=.34?3:ratio>=.16?2:1;
+ const prev=G.stars[L.idx]||0; G.stars[L.idx]=Math.max(prev,st);
+ G.unlocked=Math.max(G.unlocked,Math.min(20,L.idx+2));
+ G.charges.bell=1+Math.floor(G.heroLv/3); G.charges.fruit=Math.floor(G.heroLv/4); G.charges.burst=Math.max(0,Math.floor((G.heroLv-2)/4));
+ save();
+ AU.stop();
+ for(let i=0;i<st;i++)setTimeout(()=>AU.sfx('star'),300+i*300);
+ const card=$('clearCard');
+ card.innerHTML='<h2>關 卡 完 成 ！</h2>'+
+  '<div class="stars">'+'★'.repeat(st).split('').map(c=>'<b>'+c+'</b>').join('')+'<span>'+'☆'.repeat(3-st)+'</span></div>'+
+  '<p style="text-align:center">📍 '+L.cfg.d+'・'+L.cfg.p+'<br>剩餘步數 '+L.moves+' / '+L.movesMax+'　樹醫 LV.'+G.heroLv+'</p>'+
+  '<p style="text-align:center;color:#bfe9ff">'+(st===3?'完美！斧頭揮得毫無多餘，老榕伯會很驕傲的。':st===2?'幹得漂亮！再優化一下連鎖路线就能拿到三顆星。':'過關了！步數還有優化空間，試試连锁砍伐吧。')+'</p>'+
+  '<div class="row">'+(L.idx<19?'<button class="menuBtn" id="btnNext" style="min-width:150px">下 一 關 ▶</button>':'<button class="menuBtn" id="btnNext" style="min-width:150px">迎 向 結 局 ▶</button>')+
+  '<button class="miniBtn" id="btnReplay">↻ 重玩</button><button class="miniBtn" id="btnSel2">⚑ 選關</button></div>';
+ show('ovClear');
+ $('btnNext').onclick=()=>{AU.sfx('ui');hide('ovClear'); if(L.idx>=19){ runEnding(); } else startLevel(L.idx+1);};
+ $('btnReplay').onclick=()=>{AU.sfx('ui');hide('ovClear');startLevel(L.idx);};
+ $('btnSel2').onclick=()=>{hide('ovClear');openSelect();};
+}
+async function fail(msg){
+ if(G.mode!=='play')return; G.mode='fail'; AU.sfx('fail'); AU.stop();
+ log('✖ '+msg);
+ $('failCard').innerHTML='<h2 style="color:#ff9aa8">作 戰 失 敗</h2>'+
+  '<p style="text-align:center">'+msg+'</p>'+
+  '<p style="text-align:center;color:#bfe9ff">提示：善用「連鎖」與「嚇跑精靈」。砍倒精靈旁邊的樹，牠就會消失。</p>'+
+  '<div class="row"><button class="menuBtn" id="btnRetry2" style="min-width:150px">↻ 再 挑 戰</button>'+
+  '<button class="miniBtn" id="btnSel3">⚑ 選關</button></div>';
+ show('ovFail');
+ $('btnRetry2').onclick=()=>{AU.sfx('ui');hide('ovFail');startLevel(L.idx);};
+ $('btnSel3').onclick=()=>{hide('ovFail');openSelect();};
+}
+
+/* ---- 技能 ---- */
+async function useSkill(i){
+ if(!L||L.busy||G.mode!=='play')return;
+ if(i===0){ if(L.bell<=0)return; L.bell--; L.busy=true; AU.sfx('skill');
+  for(const s of L.sprites)part(L.ox+(s.x+.5)*L.ts,L.oy+(s.y+.5)*L.ts,14,'#fff36b',1.8);
+  log('◎ 淨化鈴鐺！叮鈴鈴――全場藍霧被驅散了。');
+  L.sprites=[]; await sleep(300); L.busy=false; await afterTurn(); }
+ else if(i===1){ if(L.fruit<=0)return; L.fruit--; AU.sfx('skill');
+  L.moves=Math.min(L.movesMax+20,L.moves+8); floatText(L.px,L.py,'+8 MOVES','#ffe08a',1.2);
+  log('◎ 咬下星光果實，時間倒流了一點……步數 +8！'); updHUD(); }
+ else if(i===2){ if(L.burst<=0)return; L.burst--; L.busy=true; AU.sfx('skill'); L.shake=8;
+  log('◎ 流星斬！星光化作無數斧刃，全場病樹 -1 HP！');
+  for(const t of L.trees)if(!t.gone){damage(t,1);part(L.ox+(t.x+.5)*L.ts,L.oy+(t.y+.5)*L.ts,6,'#ffe08a',1.4);}
+  await sleep(250); await resolveDeaths(); L.busy=false; await afterTurn(); }
+}
+
+/* ===================== 繪圖 ===================== */
+let tGlobal=0;
+function drawField(){
+ const cfg=L.cfg, T=THEME[cfg.ch-1];
+ // 背景
+ ctx.fillStyle= cfg.ch>=3?'#1a1330':'#20304a'; ctx.fillRect(0,0,320,240);
+ for(let i=0;i<240;i+=8){ ctx.fillStyle='rgba(255,255,255,'+(0.02+(i%16?0:.015))+')'; ctx.fillRect(0,i,320,4); }
+ // 遠景樹影
+ ctx.fillStyle=cfg.ch>=3?'#241a3f':'#2b4a3a';
+ for(let i=0;i<10;i++){const x=(i*37+ (tGlobal*.02|0))%340-10; ctx.fillRect(x,200+((i*13)%30),26,40);}
+ // 場地框
+ const gw=L.w*L.ts,gh=L.h*L.ts;
+ ctx.fillStyle='#2a1d12'; ctx.fillRect(L.ox-5,L.oy-5,gw+10,gh+10);
+ ctx.fillStyle=T.fr; ctx.fillRect(L.ox-4,L.oy-4,gw+8,gh+8);
+ ctx.fillStyle='rgba(255,255,255,.15)'; ctx.fillRect(L.ox-4,L.oy-4,gw+8,2);
+ // 地磚
+ const sh=(L.shake>0)?(Math.random()*2-1)*L.shake*.6:0;
+ ctx.save(); ctx.translate(sh,sh*.6);
+ for(let y=0;y<L.h;y++)for(let x=0;x<L.w;x++){
+  const t=L.tiles[y*L.w+x]; const v=(x*7+y*13)%4;
+  const f=(t===T_W)?((tGlobal/16|0)+x+y)%2:0;
+  blit(tileArt(t,v,cfg.ch-1,f),L.ox+x*L.ts,L.oy+y*L.ts,L.ts,L.ts);
+ }
+ // 目標提示箭頭
+ if(L.hint>0){ const near=nearestTree();
+  if(near){ const hx=L.ox+(near.x+.5)*L.ts, hy=L.oy+near.y*L.ts-4+Math.sin(tGlobal/6)*2;
+   ctx.fillStyle='#ffe08a'; ctx.beginPath(); ctx.moveTo(hx,hy+7);ctx.lineTo(hx-5,hy);ctx.lineTo(hx+5,hy);ctx.fill(); } }
+ // 樹（依y排序）
+ const order=L.trees.filter(t=>!t.gone).slice().sort((a,b)=>a.y-b.y||a.x-b.x);
+ for(const t of order){
+  const stage=clamp(Math.round((1-t.hp/t.max)*3),0,3);
+  const sw=((tGlobal/22|0)+t.x+t.y)%2;
+  const shx=t.sh>0?(Math.random()*2-1)*1.6:0;
+  if(t.sh>0)t.sh--; if(t.fl>0)t.fl--;
+  const s=L.ts*(t.type==='boss'?1.35:1);
+  const dx=L.ox+t.x*L.ts+(L.ts-s)/2+shx, dy=L.oy+t.y*L.ts+(L.ts-s);
+  if(t.fl>0&&t.fl%2===0){ctx.globalAlpha=.55;}
+  blit(treeArt(t.type,stage,sw),dx,dy,s,s);
+  ctx.globalAlpha=1;
+  if(t.type==='boss'){ // BOSS 血條
+   const bw=s,bx=dx,by=dy-6;
+   ctx.fillStyle='#1a0d18';ctx.fillRect(bx-1,by-1,bw+2,5);
+   ctx.fillStyle='#ff4d6d';ctx.fillRect(bx,by,bw*(t.hp/t.max),3);
+   ctx.fillStyle='#fff';ctx.fillRect(bx,by,bw*(t.hp/t.max),1);
+  } else { // HP 點
+   for(let i=0;i<t.max;i++){ ctx.fillStyle=i<t.hp?DIS[t.type].col:'#3a2f4a';
+    ctx.fillRect(L.ox+t.x*L.ts+2+i*3,L.oy+t.y*L.ts+1,2,2); }
+  }
+ }
+ // 精靈
+ for(const s of L.sprites){
+  const bob=Math.sin((tGlobal+s.x*10+s.y*7)/9)*2;
+  blit(spriteArt((tGlobal/12|0)%2,s.mad),L.ox+s.x*L.ts,L.oy+s.y*L.ts+bob,L.ts,L.ts);
+  if(Math.random()<.12)L.parts.push({x:L.ox+(s.x+.5)*L.ts+(Math.random()*8-4),y:L.oy+(s.y+.7)*L.ts+bob,
+   vx:0,vy:-.2,l:22,m:22,c:'#cdeeff',s:1});
+ }
+ // 主角
+ const hb=Math.abs(Math.sin(tGlobal/14))*1.2;
+ const hs=L.ts*1.12;
+ const hx=L.ox+L.px*L.ts+(L.ts-hs)/2, hy=L.oy+L.py*L.ts+(L.ts-hs)-hb*.5;
+ const flip=L.dir[0]<0;
+ blit(heroArt(L.frame,(tGlobal/70|0)%8===0,L.busy),hx,hy,hs,hs,flip);
+ // 粒子
+ for(let i=L.parts.length-1;i>=0;i--){const p=L.parts[i];p.x+=p.vx;p.y+=p.vy;p.vy+=.05;p.l--;
+  if(p.l<=0){L.parts.splice(i,1);continue;}
+  ctx.globalAlpha=p.l/p.m; ctx.fillStyle=p.c; ctx.fillRect(p.x|0,p.y|0,p.s,p.s); }
+ ctx.globalAlpha=1;
+ // 浮字
+ for(let i=L.floats.length-1;i>=0;i--){const f=L.floats[i];f.y-=.35;f.l--;
+  if(f.l<=0){L.floats.splice(i,1);continue;}
+  ctx.globalAlpha=Math.min(1,f.l/20); ctx.font=(7*f.big|0)+'px "DotGothic16",monospace';
+  ctx.fillStyle='#000';ctx.fillText(f.t,f.x-ctx.measureText(f.t).width/2+1,f.y+1);
+  ctx.fillStyle=f.c;ctx.fillText(f.t,f.x-ctx.measureText(f.t).width/2,f.y); }
+ ctx.globalAlpha=1;
+ ctx.restore();
+ if(L.shake>0)L.shake*=.86;
+ // 夜/霧濾鏡
+ if(cfg.ch===3){ctx.fillStyle='rgba(80,40,120,.18)';ctx.fillRect(0,0,320,240);}
+ if(cfg.ch===4){ctx.fillStyle='rgba(60,20,90,.28)';ctx.fillRect(0,0,320,240);
+  for(let i=0;i<14;i++){const x=(i*53+tGlobal*.4)%340-10,y=180+Math.sin(i+tGlobal/40)*22;
+   ctx.fillStyle='rgba(120,180,255,.09)';ctx.fillRect(x,y,26,10);} }
+}
+function nearestTree(){ let b=null,bd=999;
+ for(const t of L.trees){if(t.gone)continue;const d=Math.abs(t.x-L.px)+Math.abs(t.y-L.py);if(d<bd){bd=d;b=t;}} return b; }
+
+/* ---- 場景背景（標題/劇情/結局）---- */
+function drawScene(kind){
+ const t=tGlobal;
+ let sky;
+ if(kind==='city')sky=['#8fd8ff','#bfe9ff','#e8f7ff'];
+ else if(kind==='dusk')sky=['#5a3f7a','#c96a6a','#f0b27a'];
+ else if(kind==='dark')sky=['#140b24','#2a1030','#4a1f4a'];
+ else sky=['#ffd9a0','#ffe9c4','#fff6e2'];
+ for(let i=0;i<3;i++){ctx.fillStyle=sky[i];ctx.fillRect(0,i*50,320,50);}
+ ctx.fillStyle=sky[2];ctx.fillRect(0,150,320,90);
+ // 太陽/月亮
+ if(kind==='dark'){ ctx.fillStyle='#e8e0ff';ctx.beginPath();ctx.arc(250,42,16,0,7);ctx.fill();
+  ctx.fillStyle=sky[0];ctx.beginPath();ctx.arc(256,38,14,0,7);ctx.fill(); }
+ else if(kind==='dusk'){ ctx.fillStyle='#ffd166';ctx.beginPath();ctx.arc(60,86,20,0,7);ctx.fill();
+  ctx.fillStyle='rgba(255,209,102,.25)';ctx.beginPath();ctx.arc(60,86,30,0,7);ctx.fill(); }
+ else if(kind==='dawn'){ ctx.fillStyle='#fff3c4';ctx.beginPath();ctx.arc(160,70,22,0,7);ctx.fill();
+  ctx.fillStyle='rgba(255,243,196,.25)';ctx.beginPath();ctx.arc(160,70,36,0,7);ctx.fill(); }
+ else { ctx.fillStyle='#fffbe8';ctx.beginPath();ctx.arc(270,38,14,0,7);ctx.fill(); }
+ // 雲
+ ctx.fillStyle=kind==='dark'?'rgba(60,30,80,.6)':'rgba(255,255,255,.7)';
+ for(let i=0;i<5;i++){const x=((i*80+t*.12)%(380))-40,y=24+i*17;
+  ctx.fillRect(x,y,34,7);ctx.fillRect(x+7,y-5,20,6);ctx.fillRect(x+4,y+6,26,4);}
+ // 山
+ ctx.fillStyle=kind==='dark'?'#1f1430':kind==='dusk'?'#4a3a6a':'#7fa88a';
+ ctx.beginPath();ctx.moveTo(0,150);ctx.lineTo(50,105);ctx.lineTo(95,145);ctx.lineTo(140,100);ctx.lineTo(200,150);ctx.closePath();ctx.fill();
+ ctx.beginPath();ctx.moveTo(150,150);ctx.lineTo(215,112);ctx.lineTo(280,150);ctx.closePath();ctx.fill();
+ // 天際線 + 台北101
+ ctx.fillStyle=kind==='dark'?'#0f0a1c':kind==='dusk'?'#3a2a55':'#9fb6cc';
+ for(let i=0;i<16;i++){const h=26+((i*37)%44);ctx.fillRect(i*20+2,152-h,14,h);}
+ const x101=232,base=152,h101=104;
+ ctx.fillStyle=kind==='dark'?'#1a1030':kind==='dusk'?'#4a3568':'#8fa8c4';
+ for(let i=0;i<7;i++){const w=22-i*1.4;ctx.fillRect(x101-w/2,base-h101+i*13,w,12);}
+ ctx.fillRect(x101-1,base-h101-14,2,14);
+ ctx.fillStyle=kind==='dark'?'#ff4d6d':'#ffe08a';ctx.fillRect(x101-1,base-h101-16,2,2);
+ // 地面
+ ctx.fillStyle=kind==='dark'?'#241a3a':kind==='dusk'?'#3f6b3a':kind==='dawn'?'#5cb84a':'#63c252';
+ ctx.fillRect(0,152,320,88);
+ ctx.fillStyle=kind==='dark'?'#1a1030':'rgba(0,0,0,.12)';
+ for(let i=0;i<60;i++){ctx.fillRect((i*47)%320,156+((i*29)%80),6,2);}
+ // 路
+ ctx.fillStyle=kind==='dark'?'#3a2f4a':'#e0cfa0';
+ ctx.beginPath();ctx.moveTo(120,240);ctx.lineTo(200,240);ctx.lineTo(172,158);ctx.lineTo(150,158);ctx.closePath();ctx.fill();
+ // 樹
+ const sick=kind==='dark'||kind==='dusk';
+ for(let i=0;i<9;i++){
+  const tx=14+i*38+((i*17)%12),ty=168+((i*23)%52),s=22+((i*7)%12);
+  ctx.fillStyle='#6b4423';ctx.fillRect(tx+s/2-2,ty,4,s*.6);
+  if(sick){ ctx.fillStyle=i%2?'#7a5a2a':'#5a4a6a'; }
+  else ctx.fillStyle=i%2?'#3f9e4f':'#4fae5a';
+  ctx.beginPath();ctx.arc(tx+s/2,ty-2,s*.55,0,7);ctx.fill();
+  ctx.beginPath();ctx.arc(tx+s/2-s*.3,ty+3,s*.36,0,7);ctx.fill();
+  ctx.beginPath();ctx.arc(tx+s/2+s*.3,ty+3,s*.36,0,7);ctx.fill();
+  if(sick){ ctx.fillStyle=kind==='dark'?'#7a3b8f':'#8fdcff';
+   for(let k=0;k<4;k++)ctx.fillRect(tx+4+k*5+((i+k)%3),ty-6+((k*5)%10),3,3); }
+ }
+ // 藍霧 / 螢光
+ if(kind==='dark'||kind==='dusk'){
+  for(let i=0;i<26;i++){const x=(i*61+t*.3)%330,y=150+((i*37)%88)+Math.sin(t/40+i)*4;
+   ctx.fillStyle=kind==='dark'?'rgba(122,59,143,.28)':'rgba(143,220,255,.3)';
+   ctx.fillRect(x,y,10+i%8,6);} }
+ if(kind==='dawn'){ for(let i=0;i<30;i++){const x=(i*53+t*.6)%330,y=(i*41+t*.8)%240;
+  ctx.fillStyle='rgba(255,200,230,.7)';ctx.fillRect(x,y,2,2);} 
+  // 彩虹
+  const rc=['#ff9aa8','#ffd166','#fff36b','#7ef29a','#8fdcff','#a06bff'];
+  rc.forEach((c,i)=>{ctx.strokeStyle=c;ctx.lineWidth=3;ctx.beginPath();ctx.arc(160,200,120-i*3,Math.PI*1.15,Math.PI*1.85);ctx.stroke();});
+ }
+ // 精靈
+ const n=kind==='dawn'?9:4;
+ for(let i=0;i<n;i++){const x=40+((i*71+t*(0.5+i*0.1))%250),y=110+Math.sin(t/22+i*2)*22+i*4;
+  blit(spriteArt((t/10+i|0)%2,false),x,y,16,16);}
+ // 主角
+ if(kind!=='dark'){ const hx=150+Math.sin(t/60)*22, hy=206;
+  blit(heroArt((t/12|0)%2,(t/70|0)%8===0,false),hx,hy,22,22,Math.sin(t/60)<0); }
+ // 枯萎之心
+ if(kind==='dark'){ const pulse=Math.sin(t/18)*3;
+  ctx.fillStyle='#4a2c20';ctx.fillRect(140,120,40,60);
+  ctx.fillStyle='#3a2140';ctx.beginPath();ctx.arc(160,110,40+pulse,0,7);ctx.fill();
+  ctx.fillStyle='#ff4d6d';ctx.beginPath();ctx.arc(160,140,9+pulse*.6,0,7);ctx.fill();
+  ctx.fillStyle='rgba(255,255,255,.5)';ctx.fillRect(157,133,3,3);
+  for(let i=0;i<8;i++){const a=t/40+i*.8;ctx.fillStyle='rgba(160,107,255,.4)';
+   ctx.fillRect(160+Math.cos(a)*46,140+Math.sin(a)*30,4,4);} }
+ // 暗角
+ const gr=ctx.createRadialGradient(160,120,60,160,120,210);
+ gr.addColorStop(0,'rgba(0,0,0,0)');gr.addColorStop(1,'rgba(0,0,0,.55)');
+ ctx.fillStyle=gr;ctx.fillRect(0,0,320,240);
+}
+
+function render(){
+ tGlobal++;
+ if(G.mode==='play'||G.mode==='clear'||G.mode==='fail')drawField();
+ else if(G.mode==='story')drawScene(G.storyBG||'dusk');
+ else if(G.mode==='title'||G.mode==='select'||G.mode==='help'||G.mode==='juke')drawScene('dusk');
+ else if(G.mode==='end')drawScene('dawn');
+ else drawScene('city');
+ requestAnimationFrame(render);
+}
+
+/* ===================== 畫面控制 ===================== */
+const OVS=['ovTitle','ovStory','ovIntro','ovClear','ovFail','ovSelect','ovHelp','ovJuke','ovEnd'];
+function show(id){$(id).classList.add('show');}
+function hide(id){$(id).classList.remove('show');}
+function hideAll(){OVS.forEach(hide);}
+
+/* ---- 劇情播放 ---- */
+let SQ=null,SQI=0,typing=false,typeTxt='',typeI=0,typeTid=null;
+function playStory(key,cb){
+ SQ=STORY[key];SQI=0;G.mode='story';G.storyCB=cb;
+ hideAll();show('ovStory');
+ const first=SQ[0];G.storyBG=first.bg;
+ AU.stop();AU.play(key==='ch3'||key==='prologue'?'sad':key==='ending'?'end':'field3');
+ step();
+ function step(){
+  if(SQI>=SQ.length){ finish(); return; }
+  const s=SQ[SQI]; G.storyBG=s.bg;
+  $('spName').textContent=s.sp?({'hero':'小柚','borong':'老榕伯','puju':'噗啾','wu':'灰霧之母','lan':'藍藍王'})[s.sp]:'旁白';
+  $('spName').style.color=s.sp?({'hero':'#ffd166','borong':'#9be564','puju':'#7fd4ff','wu':'#c77dff','lan':'#6fb0ff'})[s.sp]:'#d8d8e8';
+  const pc=$('portrait'),pg=pc.getContext('2d');pg.imageSmoothingEnabled=false;pg.clearRect(0,0,32,32);
+  pg.drawImage(portraitArt(s.sp||'leaf'),0,0,32,32);
+  $('portrait').style.visibility=s.sp?'visible':'hidden';
+  typeTxt=s.tx;typeI=0;typing=true;$('spText').textContent='';
+  $('storyPage').textContent=(SQI+1)+' / '+SQ.length;
+  clearInterval(typeTid);
+  typeTid=setInterval(()=>{ if(typeI>=typeTxt.length){clearInterval(typeTid);typing=false;return;}
+   typeI++;$('spText').textContent=typeTxt.slice(0,typeI);
+   if(typeI%2===0)AU.sfx('txt'); },26);
+  SQI++;
+ }
+ function finish(){ hide('ovStory'); typing=false; clearInterval(typeTid);
+  G.mode='play'; const cb=G.storyCB; G.storyCB=null; if(cb)cb(); }
+ window.__storyAdvance=function(){ if(typing){clearInterval(typeTid);typeI=typeTxt.length;$('spText').textContent=typeTxt;typing=false;}
+  else step(); };
+}
+
+/* ---- 關卡 ---- */
+function startLevel(i){
+ G.lvl=i; const cfg=LEVELS[i];
+ G.axeLv=(i+1)>=15?3:(i+1)>=6?2:1;
+ L=genLevel(i); initSprites(); L.hint=1;
+ G.charges=G.charges||{};
+ hideAll(); G.mode='intro';
+ AU.stop(); AU.play(CH_MUS[cfg.ch]);
+ $('introCard').innerHTML='<h2>STAGE '+(i+1)+' / 20</h2>'+
+  '<div style="font-size:clamp(15px,4vw,22px);color:#bfe9ff;letter-spacing:2px;margin:2px 0">'+cfg.p+'</div>'+
+  '<div><span class="tag g">'+cfg.d+'</span><span class="tag">'+CH_NAME[cfg.ch]+'</span>'+
+  '<span class="tag y">星光斧 Lv.'+G.axeLv+'（傷害'+G.axeLv+'）</span></div>'+
+  '<p style="text-align:center;margin-top:8px">🎯 目標：砍倒全部 <b style="color:#ffe08a">'+L.total+'</b> 棵病樹　・　步數上限 <b style="color:#ffe08a">'+L.movesMax+'</b>　・　體力 <b style="color:#ff9aa8">'+G.maxHP+'</b></p>'+
+  '<p style="background:#1d1836;border:2px solid #463a7a;padding:8px;text-align:left;color:#cfe9ff">💡 '+cfg.tip+'</p>'+
+  '<div class="row"><button class="menuBtn" id="btnGo" style="min-width:170px">出 發 ！</button>'+
+  '<button class="miniBtn" id="btnBackSel">⚑ 選關</button></div>';
+ show('ovIntro');
+ $('btnGo').onclick=()=>{AU.sfx('ui');hide('ovIntro');G.mode='play';L.busy=false;updHUD();
+  log('―― STAGE '+(i+1)+' '+cfg.d+'・'+cfg.p+' ――');};
+ $('btnBackSel').onclick=()=>{hide('ovIntro');openSelect();};
+ updHUD(); updSide();
+}
+function updSide(){
+ if(!L)return;
+ const c=L.cfg;
+ $('sideInfo').innerHTML='<b>STAGE '+(L.idx+1)+'</b> '+c.p+'（'+c.d+'）<br>'+CH_NAME[c.ch]+
+  '<br>病樹 '+L.left+' / '+L.total+' 棵　・　步數 '+L.moves+'<br>星光斧 Lv.'+G.axeLv+'　・　樹醫 LV.'+G.heroLv;
+ $('mapList').innerHTML=LEVELS.map((l,i)=>{const st=G.stars[i];
+  return '<div>'+(i+1)+'. '+l.d+'・'+l.p+' <span style="color:#ffcf4d">'+(st?'★'.repeat(st):'')+'</span>'+
+  ((i+1)>G.unlocked?' 🔒':'')+'</div>';}).join('');
+ $('saveInfo').innerHTML='解鎖進度：'+Math.min(G.unlocked,20)+' / 20 關<br>總星數：'+totalStars()+' / 60<br>樹醫等級：LV.'+G.heroLv;
+}
+
+/* ---- 選單 ---- */
+function openSelect(){
+ G.mode='select'; hideAll(); show('ovSelect'); AU.stop(); AU.play('title');
+ let h='';
+ for(let i=0;i<20;i++){const lock=(i+1)>G.unlocked;const st=G.stars[i]||0;
+  h+='<button class="lvBtn '+(lock?'lock':(st?'done':''))+'" data-lv="'+i+'" '+(lock?'disabled':'')+'>'+
+   (lock?'🔒':(i+1))+'<br><span style="font-size:9px;color:#a9c6ff">'+LEVELS[i].d+'</span><br><span class="st">'+(st?'★'.repeat(st):'')+'</span></button>';}
+ $('lvGrid').innerHTML=h;
+ $('lvGrid').querySelectorAll('.lvBtn').forEach(b=>b.onclick=()=>{AU.sfx('ui');hide('ovSelect');startLevel(+b.dataset.lv);});
+ updSide();
+}
+function openHelp(){
+ G.mode='help'; hideAll(); show('ovHelp');
+ $('helpCard').innerHTML='<h2>玩 法 說 明</h2>'+
+ '<p><b style="color:#ffe08a">◆ 目標</b>：在步數用完前，砍倒公園裡「所有」生病的樹木，切斷藍枯病的傳染鏈。</p>'+
+ '<p><b style="color:#ffe08a">◆ 操作</b>：方向鍵 / WASD 移動；走向病樹會<b>自動揮斧</b>；空白鍵 = 朝面對方向砍；手機可用左下方方向盤。<br>1 = 淨化鈴鐺　2 = 星光果實　3 = 流星斬　R = 重來　M = 音樂</p>'+
+ '<p><b style="color:#ffe08a">◆ 連鎖解謎</b>：每種病樹倒下時會造成不同的連鎖傷害。<br>・葉枯病(黃) HP1 → 周囲8格全部 -1<br>・褐根病(褐) HP2 → 十字「同種」 -1<br>・白紋羽病(白) HP3 → 十字「同種+炭疽」 -1<br>・炭疽病(紫) HP4 → 十字「所有樹」 -1<br>把硬樹排在連鎖路徑上，就能省下大量步數拿三星！</p>'+
+ '<p><b style="color:#8fdcff">◆ 藍色小精靈</b>：牠們會飛向病樹並把樹<b>治好(HP+1)</b>；貼到你身邊會<b>丟漿果（體力-1・步數-1）</b>。<br>反制：砍倒牠<b>旁邊</b>的樹 → 牠會被嚇跑；或使用淨化鈴鐺。</p>'+
+ '<p><b style="color:#ff9aa8">◆ 失敗條件</b>：體力歸零，或步數用完仍有病樹存活。</p>'+
+ '<p><b style="color:#9be564">◆ RPG成長</b>：砍樹獲得 EXP。升級後體力上限+1、技能補充，並讓下一關的步數上限增加。第6關取得星光斧Lv2、第15關取得Lv3。</p>'+
+ '<div class="row"><button class="miniBtn" id="btnHelpClose">返 回</button></div>';
+ $('btnHelpClose').onclick=()=>{AU.sfx('ui');hide('ovHelp');if(L&&G.unlocked>L.idx){G.mode='play';updHUD();}else{G.mode='title';show('ovTitle');}};
+}
+function openJuke(){
+ G.mode='juke'; hideAll(); show('ovJuke');
+ let h=''; let i=0;
+ for(const k in TRACKS){ h+='<div class="track" data-k="'+k+'"><span style="color:#ffcf4d">♪</span> '+
+  String(++i).padStart(2,'0')+'. '+TRACKS[k].name+' <span style="margin-left:auto;color:#8b7fc4;font-size:10px">'+TRACKS[k].bpm+' BPM</span></div>'; }
+ $('trackList').innerHTML=h;
+ $('trackList').querySelectorAll('.track').forEach(el=>el.onclick=()=>{
+  $('trackList').querySelectorAll('.track').forEach(x=>x.classList.remove('playing'));
+  el.classList.add('playing'); AU.stop(); AU.cur=null; AU.play(el.dataset.k); AU.sfx('ui'); });
+}
+function runEnding(){
+ G.mode='end'; hideAll();
+ playStory('ending',()=>{
+  G.mode='end'; show('ovEnd'); AU.stop(); AU.play('end');
+  const ts=totalStars();
+  $('endTitle').textContent= ts>=52?'★ PERFECT END ★':'THE END';
+  $('endStats').innerHTML='<div class="kv"><span>拯救公園</span><span>20 / 20</span></div>'+
+   '<div class="kv"><span>總星數</span><span style="color:#ffcf4d">'+ts+' / 60</span></div>'+
+   '<div class="kv"><span>樹醫等級</span><span>LV.'+G.heroLv+'</span></div>'+
+   (ts>=52?'<p style="text-align:center;color:#ffe08a">【完美結局】老榕伯的新芽提前一年發了。藍色小精靈們在你的帽子上築了巢，从此台北的公园再没有一片叶子是孤单的。</p>':'');
+  $('endCredits').innerHTML=
+   '<br><br><div style="font-size:16px;color:#ffcf4d">～ 砍樹大作戰 ～</div><div>台北公園・藍霧編</div><br>'+
+   '<div>見習樹木醫生　小柚</div><div>大安森林公園・老榕伯</div><div>藍色小精靈　噗啾</div><div>藍藍王</div><div>灰霧之母</div><br>'+
+   '<div style="color:#9be564">■ 感謝 台北市12行政區 20座公園</div>'+
+   LEVELS.map((l,i)=>'<div>'+(i+1)+'. '+l.d+'・'+l.p+'</div>').join('')+
+   '<br><div>遊戲設計・程式・像素美術</div><div>Qwen</div><br><div>晶片配樂</div><div>Web Audio 合成器（全7曲）</div><br>'+
+   '<div style="color:#8fdcff">樹不會說話，<br>可是他們一直在努力活著。</div><br><br><div>THANK YOU FOR PLAYING!</div><br><br>';
+ });
+}
+
+/* ===================== 輸入 ===================== */
+const DIRS={up:[0,-1],down:[0,1],left:[-1,0],right:[1,0],
+ ArrowUp:[0,-1],ArrowDown:[0,1],ArrowLeft:[-1,0],ArrowRight:[1,0],
+ w:[0,-1],s:[0,1],a:[-1,0],d:[1,0],W:[0,-1],S:[0,1],A:[-1,0],D:[1,0]};
+document.addEventListener('keydown',e=>{
+ AU.resume();
+ if(e.key===' '||e.key.startsWith('Arrow'))e.preventDefault();
+ if(G.mode==='story'){ if(e.key===' '||e.key==='Enter')window.__storyAdvance(); return; }
+ if(e.key==='m'||e.key==='M'){toggleMusic();return;}
+ if(e.key==='h'||e.key==='H'){openHelp();return;}
+ if(e.key==='r'||e.key==='R'){if(L&&G.mode!=='title'){AU.sfx('ui');hideAll();startLevel(G.lvl);}return;}
+ if(e.key==='Escape'){ if($('ovSelect').classList.contains('show')||$('ovHelp').classList.contains('show')||$('ovJuke').classList.contains('show')){hideAll();
+   if(L){G.mode='play';updHUD();}else{G.mode='title';show('ovTitle');}} return; }
+ if(G.mode!=='play'||!L||L.busy)return;
+ if(DIRS[e.key]){ tryMove(DIRS[e.key][0],DIRS[e.key][1]); return; }
+ if(e.key===' '||e.key==='j'||e.key==='J'||e.key==='z'||e.key==='Z'){ doChop(); return; }
+ if(e.key==='1')useSkill(0); if(e.key==='2')useSkill(1); if(e.key==='3')useSkill(2);
+});
+document.querySelectorAll('[data-dir]').forEach(b=>{
+ const fire=e=>{e.preventDefault();AU.resume();const d=DIRS[b.dataset.dir];if(d&&G.mode==='play')tryMove(d[0],d[1]);};
+ b.addEventListener('pointerdown',fire);
+});
+$('btnChop').addEventListener('pointerdown',e=>{e.preventDefault();AU.resume();if(G.mode==='play')doChop();});
+$('sk0').onclick=()=>useSkill(0);$('sk1').onclick=()=>useSkill(1);$('sk2').onclick=()=>useSkill(2);
+$('btnRetry').onclick=()=>{AU.resume();if(L){AU.sfx('ui');hideAll();startLevel(G.lvl);}};
+$('btnQuit').onclick=()=>{AU.sfx('ui');G.mode='title';hideAll();show('ovTitle');AU.stop();AU.play('title');};
+$('btnHelp').onclick=()=>{AU.resume();AU.sfx('ui');openHelp();};
+$('btnHelp2').onclick=()=>{AU.resume();AU.sfx('ui');openHelp();};
+$('btnSelect').onclick=()=>{AU.resume();AU.sfx('ui');openSelect();};
+$('btnJuke').onclick=()=>{AU.resume();AU.sfx('ui');openJuke();};
+$('btnJukeStop').onclick=()=>{AU.stop();AU.cur=null;$('trackList').querySelectorAll('.track').forEach(x=>x.classList.remove('playing'));};
+$('btnMusic').onclick=()=>toggleMusic();
+document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>{AU.sfx('ui');hide(b.dataset.close);
+ if(L&&(G.mode==='select'||G.mode==='help'||G.mode==='juke')){G.mode='play';updHUD();}else if(!L){G.mode='title';show('ovTitle');}});
+$('ovStory').addEventListener('pointerdown',e=>{AU.resume();if(e.target.closest('#storyBox'))window.__storyAdvance();});
+$('storyBox').addEventListener('click',()=>window.__storyAdvance());
+// 滑動
+let tsx=0,tsy=0;
+cv.addEventListener('touchstart',e=>{tsx=e.touches[0].clientX;tsy=e.touches[0].clientY;},{passive:true});
+cv.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-tsx,dy=e.changedTouches[0].clientY-tsy;
+ if(Math.abs(dx)<18&&Math.abs(dy)<18){if(G.mode==='play')doChop();return;}
+ if(Math.abs(dx)>Math.abs(dy))tryMove(dx>0?1:-1,0);else tryMove(0,dy>0?1:-1);},{passive:true});
+// 點擊樹木/格子
+cv.addEventListener('click',e=>{ if(G.mode!=='play'||!L||L.busy)return;
+ const r=cv.getBoundingClientRect(); const sx=320/r.width,sy=240/r.height;
+ const mx=(e.clientX-r.left)*sx,my=(e.clientY-r.top)*sy;
+ const gx=Math.floor((mx-L.ox)/L.ts),gy=Math.floor((my-L.oy)/L.ts);
+ if(!inb(gx,gy))return;
+ const dx=gx-L.px,dy=gy-L.py;
+ if(Math.abs(dx)+Math.abs(dy)===1){ if(treeAt(gx,gy)){L.dir=[dx,dy];doChop(treeAt(gx,gy));} else tryMove(dx,dy); }
+ else if(dx||dy){ L.dir=[Math.sign(dx)&&Math.abs(dx)>=Math.abs(dy)?Math.sign(dx):0,
+   Math.abs(dy)>Math.abs(dx)?Math.sign(dy):0]; if(!L.dir[0]&&!L.dir[1])L.dir=[Math.sign(dx),0]; }
+});
+function toggleMusic(){ AU.on=!AU.on; $('btnMusic').textContent=AU.on?'♪ 音樂 ON':'♪ 音樂 OFF';
+ $('btnMusic').classList.toggle('off',!AU.on);
+ if(!AU.on)AU.stop(); else {AU.cur=null; if(G.mode==='play')AU.play(CH_MUS[L.cfg.ch]); else if(G.mode!=='juke')AU.play('title');} }
+
+/* ---- 開場 ---- */
+$('btnStart').onclick=()=>{
+ AU.resume(); AU.sfx('ui');
+ const fresh=!G.stars||totalStars()===0;
+ if(fresh){ G.heroLv=1;G.xp=0;G.xpNext=30;G.maxHP=3;G.charges={bell:1,fruit:0,burst:0}; }
+ hideAll();
+ playStory('prologue',()=>{ startLevel(0); });
+};
+$('btnBackTitle').onclick=()=>{AU.sfx('ui');G.mode='title';hideAll();show('ovTitle');AU.stop();AU.play('title');};
+
+load();
+// 展示用關卡（標題背景之外的遊玩畫面預覽）
+L=genLevel(0); initSprites(); L.busy=true;
+updHUD(); updSide(); log('◎ 歡迎來到砍樹大作戰！按「開始遊戲」聆聽序章劇情。');
+G.mode='title';
+document.addEventListener('pointerdown',()=>AU.resume(),{once:true});
+render();
+setTimeout(()=>{ if(AU.on){AU.resume();AU.play('title');} },400);
+</script>
+</body>
+</html>
